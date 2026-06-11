@@ -579,7 +579,7 @@ generate_dashboard(my_dashboard, render = TRUE)
 
 publish_dashboard(
   message = "First version",  
-  path = "/docs"               
+  path = "docs"               
 )
 
 #To update your dashboard later, use:
