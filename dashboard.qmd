@@ -12,6 +12,7 @@ editor: visual
 library("dashboardr")
 library(forcats)
 library(tidyverse)
+library(highcharter)
 
 GenAIuse_groups = factor(c("Never", "Once a week", "2-4 times per week ", "(Almost) every day", "Several times a day"))
 
@@ -622,56 +623,3 @@ Q5_by_question = create_content(data = q5_long, type = "boxplot") %>%
 Q5_by_question %>% preview()
 ```
 
-\##
-
-### Dashboard
-
-```{r}
-page_genai = create_page("GenAI use", data) %>%
-  add_text("### GenAI use", "Share of respondents in each usage category. Use the tabs to switch between the overall result and individual countries.") %>%
-  add_content(GenAIuse)
-
-page_news_trust = create_page("Trust in news media", data) %>%
-  add_text("### Trust in news media", "Ratings on a 1–10 scale (1 = no trust, 10 = full trust).") %>%
-  add_content(NewsTrust)
-
-page_chatgpt_trust = create_page("Trust in ChatGPT", data) %>%
-  add_text("### Trust in ChatGPT", "Ratings on a 1–10 scale (1 = no trust, 10 = full trust).") %>%
-  add_content(ChatGPTTrust)
-```
-
-```{r}
-q5_page = create_page("Q5 Feelings", data = q5_long) %>%
-  add_text(
-    "## Q5 — Feelings towards AI capabilities",
-    "Respondents rated each item on a 0–100 feeling thermometer, where 0 = negative and 100 = positive feelings. Each box shows the median, interquartile range and outliers; use the tabs to compare countries.") %>%
-  add_content(Q5_thermometers) %>%
-  add_text(
-    "### By question",
-    "The same data viewed the other way around: each tab is a single question, with the six countries compared side by side.") %>%
-  add_content(Q5_by_question)
-
-q5_page %>% preview()
-```
-
-### Publish
-
-```{r}
-background_menu = navbar_menu(
-  text = "Background variables",
-  pages = c("GenAI use", "Trust in news media", "Trust in ChatGPT")
-)
-
-my_dashboard = create_dashboard(
-  title = "AI & Journalism explorer",
-  output_dir = "GenAI_use",
-  theme = "cosmo",
-  navbar_sections = list(background_menu),
-  page_navigation = TRUE,
-  pagination_position = "bottom"
-) %>%
-  add_pages(home, page_genai, page_news_trust, page_chatgpt_trust, q5_page)
-
-my_dashboard %>%
-  generate_dashboard(render = TRUE, open = "browser")
-```
