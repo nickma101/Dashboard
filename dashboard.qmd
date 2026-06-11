@@ -581,6 +581,9 @@ publish_dashboard(
   message = "First version",  
   path = "/docs"               
 )
+
+#To update your dashboard later, use:
+#   update_dashboard(message = "Your update message")
 ```
 
 ```{r}
