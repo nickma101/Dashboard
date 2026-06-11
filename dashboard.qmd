@@ -555,9 +555,9 @@ authenticity_menu = navbar_menu(
   pages = c("Authenticity Feelings", "Authenticity Rankings")
 )
 
-my_dashboard = create_dashboard(
+AIJournalismDashboard = create_dashboard(
   title = "AI & Journalism explorer",
-  output_dir = "GenAI_use",
+  output_dir = "docs",
   theme = "flatly",
   navbar_sections = list(background_menu, authenticity_menu),
   page_navigation = TRUE,
@@ -567,19 +567,16 @@ my_dashboard = create_dashboard(
             page_authenticity_feelings, page_authenticity_rankings,
             page_ai_journalism_attitudes,
             page_regulatory)
-
-my_dashboard %>%
-  generate_dashboard(render = TRUE, open = "browser")
 ```
 
 ## Publish
 
 ```{r}
-generate_dashboard(my_dashboard, render = TRUE)
+generate_dashboard(AIJournalismDashboard, render = TRUE)
 
 publish_dashboard(
   message = "First version",  
-  path = "docs"               
+  path = "/docs"               
 )
 
 #To update your dashboard later, use:
