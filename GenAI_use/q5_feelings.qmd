@@ -1,0 +1,563 @@
+---
+title: "Q5 Feelings"
+format: html
+---
+
+```{r, include=FALSE}
+# Initialize dashboardr page configuration (CSS/JS for charts)
+dashboardr:::.page_config()
+```
+
+```{r setup}
+#| echo: false
+#| warning: false
+#| message: false
+#| error: false
+#| results: 'hide'
+
+# Load dashboardr (includes dplyr, highcharter as dependencies)
+library(dashboardr)
+
+# Global chunk options
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  error = FALSE,
+  fig.width = 12,
+  fig.height = 8,
+  dpi = 300
+)
+
+# Load data
+data <- readRDS('dataset_large_34805obs.rds')
+
+# Data summary
+cat('Dataset loaded:', nrow(data), 'rows,', ncol(data), 'columns\n')
+
+# Create filtered datasets
+# Each filter is applied once and reused across visualizations
+
+data_filtered_03566455 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Netherlands")
+data_filtered_beb8a137 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Denmark")
+data_filtered_a1803a37 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "USA")
+data_filtered_6dcfcc28 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Brazil")
+data_filtered_4bc4c9f5 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "South Africa")
+data_filtered_0c062950 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Japan")
+data_filtered_a2a3680f <- dashboardr:::.convert_haven(data) %>% dplyr::filter(item == "Fact-checking")
+data_filtered_ccaf1913 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(item == "Identifying content origin")
+data_filtered_13ea1077 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(item == "Understanding the writer")
+data_filtered_a131cc49 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(item == "Understanding journalistic values")
+data_filtered_7767acc9 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(item == "Judging human involvement")
+
+```
+
+
+## Q5 — Feelings towards AI capabilities
+
+Respondents rated each item on a 0–100 feeling thermometer, where 0 = negative and 100 = positive feelings. Each box shows the median, interquartile range and outliers; use the tabs to compare countries.
+
+
+### By question
+
+The same data viewed the other way around: each tab is a single question, with the six countries compared side by side.
+
+## Q5 by country
+
+
+::: {.panel-tabset}
+
+### Netherlands
+
+```{r q5-by-country}
+# Netherlands
+result <- viz_boxplot(
+  data = data_filtered_03566455,
+  title = "Netherlands",
+  y_var = "value",
+  x_var = "item",
+  horizontal = TRUE,
+  x_label = "",
+  y_label = "Feeling thermometer (0 = negative, 100 = positive)",
+  tooltip_suffix = " / 100"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Denmark
+
+```{r q5-by-country-2}
+# Denmark
+result <- viz_boxplot(
+  data = data_filtered_beb8a137,
+  title = "Denmark",
+  y_var = "value",
+  x_var = "item",
+  horizontal = TRUE,
+  x_label = "",
+  y_label = "Feeling thermometer (0 = negative, 100 = positive)",
+  tooltip_suffix = " / 100"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### USA
+
+```{r q5-by-country-3}
+# USA
+result <- viz_boxplot(
+  data = data_filtered_a1803a37,
+  title = "USA",
+  y_var = "value",
+  x_var = "item",
+  horizontal = TRUE,
+  x_label = "",
+  y_label = "Feeling thermometer (0 = negative, 100 = positive)",
+  tooltip_suffix = " / 100"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Brazil
+
+```{r q5-by-country-4}
+# Brazil
+result <- viz_boxplot(
+  data = data_filtered_6dcfcc28,
+  title = "Brazil",
+  y_var = "value",
+  x_var = "item",
+  horizontal = TRUE,
+  x_label = "",
+  y_label = "Feeling thermometer (0 = negative, 100 = positive)",
+  tooltip_suffix = " / 100"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### South Africa
+
+```{r q5-by-country-5}
+# South Africa
+result <- viz_boxplot(
+  data = data_filtered_4bc4c9f5,
+  title = "South Africa",
+  y_var = "value",
+  x_var = "item",
+  horizontal = TRUE,
+  x_label = "",
+  y_label = "Feeling thermometer (0 = negative, 100 = positive)",
+  tooltip_suffix = " / 100"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Japan
+
+```{r q5-by-country-6}
+# Japan
+result <- viz_boxplot(
+  data = data_filtered_0c062950,
+  title = "Japan",
+  y_var = "value",
+  x_var = "item",
+  horizontal = TRUE,
+  x_label = "",
+  y_label = "Feeling thermometer (0 = negative, 100 = positive)",
+  tooltip_suffix = " / 100"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Overall
+
+```{r q5-by-country-7}
+# All countries
+result <- viz_boxplot(
+  data = data,
+  title = "All countries",
+  y_var = "value",
+  x_var = "item",
+  horizontal = TRUE,
+  x_label = "",
+  y_label = "Feeling thermometer (0 = negative, 100 = positive)",
+  tooltip_suffix = " / 100"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+:::
+
+## Q5 by question
+
+
+::: {.panel-tabset}
+
+### Fact-checking
+
+```{r q5-by-question}
+# Fact-checking
+result <- viz_boxplot(
+  data = data_filtered_a2a3680f,
+  title = "Fact-checking",
+  y_var = "value",
+  x_var = "country",
+  horizontal = TRUE,
+  x_label = "",
+  y_label = "Feeling thermometer (0 = negative, 100 = positive)",
+  x_order = c("Netherlands", "Denmark", "USA", "Brazil", "South Africa", "Japan"),
+  tooltip_suffix = " / 100"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Identifying content origin
+
+```{r q5-by-question-2}
+# Identifying content origin
+result <- viz_boxplot(
+  data = data_filtered_ccaf1913,
+  title = "Identifying content origin",
+  y_var = "value",
+  x_var = "country",
+  horizontal = TRUE,
+  x_label = "",
+  y_label = "Feeling thermometer (0 = negative, 100 = positive)",
+  x_order = c("Netherlands", "Denmark", "USA", "Brazil", "South Africa", "Japan"),
+  tooltip_suffix = " / 100"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Understanding the writer
+
+```{r q5-by-question-3}
+# Understanding the writer
+result <- viz_boxplot(
+  data = data_filtered_13ea1077,
+  title = "Understanding the writer",
+  y_var = "value",
+  x_var = "country",
+  horizontal = TRUE,
+  x_label = "",
+  y_label = "Feeling thermometer (0 = negative, 100 = positive)",
+  x_order = c("Netherlands", "Denmark", "USA", "Brazil", "South Africa", "Japan"),
+  tooltip_suffix = " / 100"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Understanding journalistic values
+
+```{r q5-by-question-4}
+# Understanding journalistic values
+result <- viz_boxplot(
+  data = data_filtered_a131cc49,
+  title = "Understanding journalistic values",
+  y_var = "value",
+  x_var = "country",
+  horizontal = TRUE,
+  x_label = "",
+  y_label = "Feeling thermometer (0 = negative, 100 = positive)",
+  x_order = c("Netherlands", "Denmark", "USA", "Brazil", "South Africa", "Japan"),
+  tooltip_suffix = " / 100"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Judging human involvement
+
+```{r q5-by-question-5}
+# Judging human involvement
+result <- viz_boxplot(
+  data = data_filtered_7767acc9,
+  title = "Judging human involvement",
+  y_var = "value",
+  x_var = "country",
+  horizontal = TRUE,
+  x_label = "",
+  y_label = "Feeling thermometer (0 = negative, 100 = positive)",
+  x_order = c("Netherlands", "Denmark", "USA", "Brazil", "South Africa", "Japan"),
+  tooltip_suffix = " / 100"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+:::
+
