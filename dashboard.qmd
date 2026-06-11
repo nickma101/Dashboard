@@ -557,7 +557,7 @@ authenticity_menu = navbar_menu(
 
 AIJournalismDashboard = create_dashboard(
   title = "AI & Journalism explorer",
-  output_dir = "docs",
+  output_dir = "output",
   theme = "flatly",
   navbar_sections = list(background_menu, authenticity_menu),
   page_navigation = TRUE,
