@@ -579,7 +579,7 @@ generate_dashboard(my_dashboard, render = TRUE)
 
 publish_dashboard(
   message = "First version",  
-  path = "./GenAI_use/docs"               
+  path = "/docs"               
 )
 ```
 
@@ -622,4 +622,3 @@ Q5_by_question = create_content(data = q5_long, type = "boxplot") %>%
 
 Q5_by_question %>% preview()
 ```
-
