@@ -48,9 +48,73 @@ data = data %>%
                                  "Somewhat willing","Very willing"),
     Q6_ignore = fct_relevel(Q6_ignore, 
                                  "Very unwilling", "Somewhat unwilling", "Neutral", 
-                                 "Somewhat willing","Very willing")
+                                 "Somewhat willing","Very willing"),
+    Q10_free_companies =fct_relevel(Q10_free_companies, 
+                                 "Strongly disagree", "Disagree", 
+                                 "Neither agree, nor disagree", 
+                                 "Agree","Strongly agree"),
+    Q10_government_decides = fct_relevel(Q10_government_decides, 
+                                 "Strongly disagree", "Disagree", 
+                                 "Neither agree, nor disagree", 
+                                 "Agree","Strongly agree"),
+    Q10_right_to_complain = fct_relevel(Q10_right_to_complain, 
+                                 "Strongly disagree", "Disagree", 
+                                 "Neither agree, nor disagree", 
+                                 "Agree","Strongly agree"),
+    Q10_involve_civil_society = fct_relevel(Q10_involve_civil_society, 
+                                 "Strongly disagree", "Disagree", 
+                                 "Neither agree, nor disagree", 
+                                 "Agree","Strongly agree"),
+    Q10_only_regulate_high_risk = fct_relevel(Q10_only_regulate_high_risk, 
+                                 "Strongly disagree", "Disagree", 
+                                 "Neither agree, nor disagree", 
+                                 "Agree","Strongly agree"),
+    Q10_developers_are_responsible = fct_relevel(Q10_developers_are_responsible,
+                                 "Strongly disagree", "Disagree",
+                                 "Neither agree, nor disagree",
+                                 "Agree","Strongly agree"),
+    Q9_engaging = fct_relevel(Q9_engaging,
+                              "Strongly disagree", "Disagree",
+                              "Neither agree, nor disagree",
+                              "Agree", "Strongly agree"),
+    Q9_improving_user_experience = fct_relevel(Q9_improving_user_experience,
+                              "Strongly disagree", "Disagree",
+                              "Neither agree, nor disagree",
+                              "Agree", "Strongly agree"),
+    Q9_missing_important_news = fct_relevel(Q9_missing_important_news,
+                              "Strongly disagree", "Disagree",
+                              "Neither agree, nor disagree",
+                              "Agree", "Strongly agree"),
+    Q9_risking_privacy = fct_relevel(Q9_risking_privacy,
+                              "Strongly disagree", "Disagree",
+                              "Neither agree, nor disagree",
+                              "Agree", "Strongly agree"),
+    Q9_spreading_misinfo = fct_relevel(Q9_spreading_misinfo,
+                              "Strongly disagree", "Disagree",
+                              "Neither agree, nor disagree",
+                              "Agree", "Strongly agree"),
+    Q9_providing_relevant_news = fct_relevel(Q9_providing_relevant_news,
+                              "Strongly disagree", "Disagree",
+                              "Neither agree, nor disagree",
+                              "Agree", "Strongly agree"),
     )
 
+data = data %>%
+  mutate(
+    age_cat = fct_relevel(
+      recode(nagecat,
+        "18 t/m 24" = "18-24",
+        "25 t/m 34" = "25-34",
+        "35 t/m 44" = "35-44",
+        "45 t/m 54" = "45-54",
+        "55 t/m 70" = "55-70"
+      ),
+      "18-24", "25-34", "35-44", "45-54", "55-70"
+    ),
+    education = fct_relevel(education, "Low", "Middle", "High")
+  )
+
+# Trust preprocessing
 data = data %>%
   mutate(trust_news = case_when(
     kari_trust_news_media < 4 ~ "low",
@@ -71,11 +135,11 @@ data = data %>%
 q5_long = data %>%
   select(
     country,
-    `Fact-checking`                     = Q5_fact_check,
-    `Identifying content origin`        = Q5_identify_contents_origin,
-    `Understanding the writer`          = Q5_understanding_the_writer,
-    `Understanding journalistic values` = Q5_understanding_journalistic_values,
-    `Judging human involvement`         = Q5_judging_human_involvement
+    `Check if the content is based on facts or reality`                                          = Q5_fact_check,
+    `Identify the origins of the content, such as the author or the sources of information`      = Q5_identify_contents_origin,
+    `Understand the writers' character, beliefs or personality`                                  = Q5_understanding_the_writer,
+    `Understand which journalistic values, such as impartiality or accuracy, the content represents` = Q5_understanding_journalistic_values,
+    `The ability to judge whether a human being was involved in the writing of the content`      = Q5_judging_human_involvement
   ) %>%
   pivot_longer(-country, names_to = "item", values_to = "value") %>%
   mutate(item = fct_inorder(item))
@@ -83,27 +147,25 @@ q5_long = data %>%
 authenticity_rankings <- data %>%
   select(country, starts_with("Q4_")) %>%
   group_by(country) %>%
-  summarise(across(starts_with("Q4_") & ends_with("numeric"), mean, na.rm = TRUE))
-
-authenticity_rankings_ranked = authenticity_rankings %>%
+  summarise(across(starts_with("Q4_") & ends_with("numeric"), mean, na.rm = TRUE)) %>%
   rowwise() %>%
   mutate(across(starts_with("Q4_") & ends_with("numeric"),
-                ~ rank(c_across(starts_with("Q4_") & ends_with("numeric")))[which(c_across(starts_with("Q4_") & ends_with("numeric")) == .x)],
+                ~ rank(-c_across(starts_with("Q4_") & ends_with("numeric")))[which(c_across(starts_with("Q4_") & ends_with("numeric")) == .x)],
                 .names = "{.col}_rank")) %>%
   ungroup() %>%
   dplyr::select(-ends_with("numeric"))
 
-authenticity_bump = authenticity_rankings_ranked %>%
+authenticity_bump = authenticity_rankings %>%
   pivot_longer(-country, names_to = "item", values_to = "rank") %>%
   mutate(
     item = recode(item,
-                  "Q4_based_on_fact_numeric_rank"       = "Based on fact",
-                  "Q4_identify_origin_numeric_rank"     = "Identify origin",
-                  "Q4_expresses_character_numeric_rank" = "Expresses character",
-                  "Q4_journ_values_numeric_rank"        = "Journalistic values",
-                  "Q4_written_by_a_human_numeric_rank"  = "Written by human"
+                  "Q4_based_on_fact_numeric_rank"       = "Journalistic content that is based on facts or reality",
+                  "Q4_identify_origin_numeric_rank"     = "Journalistic content where it is easy to identify the author and sources of information",
+                  "Q4_expresses_character_numeric_rank" = "Journalistic content that expresses the writer's character, beliefs or personality",
+                  "Q4_journ_values_numeric_rank"        = "Journalistic content that follows established journalistic values, such as honesty, impartiality and/or accuracy",
+                  "Q4_written_by_a_human_numeric_rank"  = "Journalistic content that is written by a human being"
     ),
-    rank = 6 - rank  # invert: rank 1 = most important
+    rank = rank  # rank 1 = least important
   )
 ```
 
@@ -127,34 +189,34 @@ home = create_page("Home", is_landing_page = TRUE) %>%
 scale_1_10 = as.character(1:10)
 
 GenAIuse = create_content(data = data, type = "bar") %>%
-  add_viz(x_var = "GenAI_use", bar_type = "percent",
+    add_viz(x_var = "GenAI_use", bar_type = "percent",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "Overall", tabgroup = "GenAI use") %>%
-  add_viz(x_var = "GenAI_use", bar_type = "percent", 
+  add_viz(x_var = "GenAI_use", bar_type = "percent",
           filter = ~ country == "Netherlands",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "Netherlands", tabgroup = "GenAI use") %>%
-  add_viz(x_var = "GenAI_use", bar_type = "percent", 
+  add_viz(x_var = "GenAI_use", bar_type = "percent",
           filter = ~ country == "Denmark",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "Denmark", tabgroup = "GenAI use") %>%
-  add_viz(x_var = "GenAI_use", bar_type = "percent", 
+  add_viz(x_var = "GenAI_use", bar_type = "percent",
           filter = ~ country == "USA",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "USA", tabgroup = "GenAI use") %>%
-  add_viz(x_var = "GenAI_use", bar_type = "percent", 
+  add_viz(x_var = "GenAI_use", bar_type = "percent",
           filter = ~ country == "Brazil",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "Brazil", tabgroup = "GenAI use") %>%
-  add_viz(x_var = "GenAI_use", bar_type = "percent", 
+  add_viz(x_var = "GenAI_use", bar_type = "percent",
           filter = ~ country == "South Africa",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "South Africa", tabgroup = "GenAI use") %>%
-  add_viz(x_var = "GenAI_use", bar_type = "percent", 
+  add_viz(x_var = "GenAI_use", bar_type = "percent",
           filter = ~ country == "Japan",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "Japan", tabgroup = "GenAI use")
-
+ 
 GenAIuse %>% preview
 ```
 
@@ -239,37 +301,44 @@ authenticity_feelings = create_content(data = q5_long, type = "boxplot") %>%
   add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
           title = "", title_tabset = "Overall",
           x_label = "", y_label = therm_label,
-          tooltip_suffix = " / 100") %>%
+          tooltip_suffix = " / 100",
+          tabgroup = "Authenticity feelings") %>%
   add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
           filter = ~ country == "Netherlands",
           title = "", title_tabset = "Netherlands",
           x_label = "", y_label = therm_label,
-          tooltip_suffix = " / 100") %>%
+          tooltip_suffix = " / 100",
+          tabgroup = "Authenticity feelings") %>%
   add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
           filter = ~ country == "Denmark",
           title = "", title_tabset = "Denmark",
           x_label = "", y_label = therm_label,
-          tooltip_suffix = " / 100") %>%
+          tooltip_suffix = " / 100",
+          tabgroup = "Authenticity feelings") %>%
   add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
           filter = ~ country == "USA",
           title = "", title_tabset = "USA",
           x_label = "", y_label = therm_label,
-          tooltip_suffix = " / 100") %>%
+          tooltip_suffix = " / 100",
+          tabgroup = "Authenticity feelings") %>%
   add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
           filter = ~ country == "Brazil",
           title = "", title_tabset = "Brazil",
           x_label = "", y_label = therm_label,
-          tooltip_suffix = " / 100") %>%
+          tooltip_suffix = " / 100",
+          tabgroup = "Authenticity feelings") %>%
   add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
           filter = ~ country == "South Africa",
           title = "", title_tabset = "South Africa",
           x_label = "", y_label = therm_label,
-          tooltip_suffix = " / 100") %>%
+          tooltip_suffix = " / 100",
+          tabgroup = "Authenticity feelings") %>%
   add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
           filter = ~ country == "Japan",
           title = "", title_tabset = "Japan",
           x_label = "", y_label = therm_label,
-          tooltip_suffix = " / 100")
+          tooltip_suffix = " / 100",
+          tabgroup = "Authenticity feelings")
 
 authenticity_feelings %>% preview()
 ```
@@ -307,48 +376,76 @@ authenticity_ranking_viz %>% preview
 q6_vars <- c("Q6_read", "Q6_share", "Q6_trust", 
              "Q6_talk", "Q6_ignore")
 
+q6_labels = c(Q6_read = "Read", Q6_share = "Share", Q6_trust = "Trust",
+              Q6_talk = "Talk About", Q6_ignore = "Ignore")
+
+q6_order   = c("Very willing", "Somewhat willing", "Neutral",
+               "Somewhat unwilling", "Very unwilling")
+q6_palette = c("#4575b4", "#91bfdb", "#ffffbf", "#fc8d59", "#d73027")
+
 AINewsEngagement = create_content(data = data, type = "stackedbar") %>%
   add_viz(x_vars = q6_vars,
+          x_var_labels = q6_labels,
+          stack_order = q6_order,
+          color_palette = q6_palette,
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "AI News Engagement Intentions",
-          title_tabset = "Overall", tabgroup = "AI Journalism Attitudes/Willingness to engage") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "Overall", tabgroup = "AI Journalism Attitudes/Willingness to Engage") %>%
   add_viz(x_vars = q6_vars,
-          filter = ~ country == "Netherlands",
+          x_var_labels = q6_labels,
+          stack_order = q6_order,
+          color_palette = q6_palette,
+          filter = ~ country =="Netherlands",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "AI News Engagement Intentions",
-          title_tabset = "Netherlands", tabgroup = "AI Journalism Attitudes/Willingness to engage") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "Netherlands", tabgroup = "AI Journalism Attitudes/Willingness to Engage") %>%
   add_viz(x_vars = q6_vars,
-          filter = ~ country == "Denmark",
+          x_var_labels = q6_labels,
+          stack_order = q6_order,
+          color_palette = q6_palette,
+          filter = ~ country =="Denmark",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "AI News Engagement Intentions",
-          title_tabset = "Denmark", tabgroup = "AI Journalism Attitudes/Willingness to engage") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "Denmark", tabgroup = "AI Journalism Attitudes/Willingness to Engage") %>%
   add_viz(x_vars = q6_vars,
-          filter = ~ country == "USA",
+          x_var_labels = q6_labels,
+          stack_order = q6_order,
+          color_palette = q6_palette,
+          filter = ~ country =="USA",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "AI News Engagement Intentions",
-          title_tabset = "USA", tabgroup = "AI Journalism Attitudes/Willingness to engage") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "USA", tabgroup = "AI Journalism Attitudes/Willingness to Engage") %>%
   add_viz(x_vars = q6_vars,
-          filter = ~ country == "Brazil",
+          x_var_labels = q6_labels,
+          stack_order = q6_order,
+          color_palette = q6_palette,
+          filter = ~ country =="Brazil",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "AI News Engagement Intentions",
-          title_tabset = "Brazil", tabgroup = "AI Journalism Attitudes/Willingness to engage") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "Brazil", tabgroup = "AI Journalism Attitudes/Willingness to Engage") %>%
   add_viz(x_vars = q6_vars,
-          filter = ~ country == "South Africa",
+          x_var_labels = q6_labels,
+          stack_order = q6_order,
+          color_palette = q6_palette,
+          filter = ~ country =="South Africa",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "AI News Engagement Intentions",
-          title_tabset = "South Africa", tabgroup = "AI Journalism Attitudes/Willingness to engage") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "South Africa", tabgroup = "AI Journalism Attitudes/Willingness to Engage") %>%
   add_viz(x_vars = q6_vars,
-          filter = ~ country == "Japan",
+          x_var_labels = q6_labels,
+          stack_order = q6_order,
+          color_palette = q6_palette,
+          filter = ~ country =="Japan",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "AI News Engagement Intentions",
-          title_tabset = "Japan", tabgroup = "AI Journalism Attitudes/Willingness to engage")
+          tooltip_suffix = "%", title = "",
+          title_tabset = "Japan", tabgroup = "AI Journalism Attitudes/Willingness to Engage")
 
 AINewsEngagement %>% preview
 ```
@@ -356,106 +453,168 @@ AINewsEngagement %>% preview
 ### Attitudes towards hyperpersonalisation
 
 ```{r}
-q9_vars <- c("Q9_engaging", "Q9_improving_user_experience",
+q9_vars <- c("Q9_engaging", "Q9_providing_relevant_news",
+             "Q9_improving_user_experience",
+             "Q9_risking_privacy",
              "Q9_missing_important_news",
-             "Q9_risking_privacy", 
              "Q9_spreading_misinfo")
+
+q9_labels = c(Q9_engaging                  = "… helps me engage with news content",
+              Q9_providing_relevant_news    = "… gives me more relevant news",
+              Q9_improving_user_experience  = "… improves my user experience",
+              Q9_risking_privacy            = "… risks my data privacy",
+              Q9_missing_important_news     = "… makes me miss out on important news",
+              Q9_spreading_misinfo          = "… leads to the spread of false and misleading information")
+
+q9_order   = c("Strongly agree", "Agree", "Neither agree, nor disagree",
+               "Disagree", "Strongly disagree")
+q9_palette = c("#4575b4", "#91bfdb", "#ffffbf", "#fc8d59", "#d73027")
 
 Hyperpersonalisation = create_content(data = data, type = "stackedbar") %>%
   add_viz(x_vars = q9_vars,
+          x_var_labels = q9_labels,
+          stack_order = q9_order,
+          color_palette = q9_palette,
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "Attitudes towards hyperpersonalised news",
-          title_tabset = "Overall", tabgroup = "AI Journalism Attitudes/Hyperpersonalisation") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "Overall", tabgroup = "AI Journalism Attitudes/Attitudes towards Hyperpersonalisation") %>%
   add_viz(x_vars = q9_vars,
+          x_var_labels = q9_labels,
+          stack_order = q9_order,
+          color_palette = q9_palette,
           filter = ~ country == "Netherlands",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "Attitudes towards hyperpersonalised news",
-          title_tabset = "Netherlands", tabgroup = "AI Journalism Attitudes/Hyperpersonalisation") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "Netherlands", tabgroup = "AI Journalism Attitudes/Attitudes towards Hyperpersonalisation") %>%
   add_viz(x_vars = q9_vars,
+          x_var_labels = q9_labels,
+          stack_order = q9_order,
+          color_palette = q9_palette,
           filter = ~ country == "Denmark",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "Attitudes towards hyperpersonalised news",
-          title_tabset = "Denmark", tabgroup = "AI Journalism Attitudes/Hyperpersonalisation") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "Denmark", tabgroup = "AI Journalism Attitudes/Attitudes towards Hyperpersonalisation") %>%
   add_viz(x_vars = q9_vars,
+          x_var_labels = q9_labels,
+          stack_order = q9_order,
+          color_palette = q9_palette,
           filter = ~ country == "USA",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "Attitudes towards hyperpersonalised news",
-          title_tabset = "USA", tabgroup = "AI Journalism Attitudes/Hyperpersonalisation") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "USA", tabgroup = "AI Journalism Attitudes/Attitudes towards Hyperpersonalisation") %>%
   add_viz(x_vars = q9_vars,
+          x_var_labels = q9_labels,
+          stack_order = q9_order,
+          color_palette = q9_palette,
           filter = ~ country == "Brazil",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "Attitudes towards hyperpersonalised news",
-          title_tabset = "Brazil", tabgroup = "AI Journalism Attitudes/Hyperpersonalisation") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "Brazil", tabgroup = "AI Journalism Attitudes/Attitudes towards Hyperpersonalisation") %>%
   add_viz(x_vars = q9_vars,
+          x_var_labels = q9_labels,
+          stack_order = q9_order,
+          color_palette = q9_palette,
           filter = ~ country == "South Africa",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "Attitudes towards hyperpersonalised news",
-          title_tabset = "South Africa", tabgroup = "AI Journalism Attitudes/Hyperpersonalisation") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "South Africa", tabgroup = "AI Journalism Attitudes/Attitudes towards Hyperpersonalisation") %>%
   add_viz(x_vars = q9_vars,
+          x_var_labels = q9_labels,
+          stack_order = q9_order,
+          color_palette = q9_palette,
           filter = ~ country == "Japan",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "Attitudes towards hyperpersonalised news",
-          title_tabset = "Japan", tabgroup = "AI Journalism Attitudes/Hyperpersonalisation")
+          tooltip_suffix = "%", title = "",
+          title_tabset = "Japan", tabgroup = "AI Journalism Attitudes/Attitudes towards Hyperpersonalisation")
 
 Hyperpersonalisation %>% preview
 ```
 
-### Aspects influencing credibility judgements
+### Aspects influencing Credibility Judgements
 
 ```{r}
 q8_vars <- c("Q8_trust_publisher", "Q8_realism",
              "Q8_misinfo_risk", "Q8_human_in_the_loop")
 
+q8_labels = c(Q8_trust_publisher   = "How much you trust the publisher / news brand",
+              Q8_realism           = "How realistic the content seems",
+              Q8_misinfo_risk      = "The ability of AI to mislead",
+              Q8_human_in_the_loop = "Whether it is clear in the article that a journalist checked the content before publishing")
+
+q8_order   = c("Absolutely essential", "Very important",
+               "Of average importance", "Of little importance", "Not important at all")
+q8_palette = c("#08306b", "#2171b5", "#6baed6", "#c6dbef", "#f7fbff")
 
 Credibility = create_content(data = data, type = "stackedbar") %>%
   add_viz(x_vars = q8_vars,
+          x_var_labels = q8_labels,
+          stack_order = q8_order,
+          color_palette = q8_palette,
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Overall", tabgroup = "AI Journalism Attitudes/Aspects influencing credibility judgements") %>%
+          title_tabset = "Overall", tabgroup = "AI Journalism Attitudes/Aspects influencing Credibility Judgements") %>%
   add_viz(x_vars = q8_vars,
+          x_var_labels = q8_labels,
+          stack_order = q8_order,
+          color_palette = q8_palette,
           filter = ~ country == "Netherlands",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Netherlands", tabgroup = "AI Journalism Attitudes/Aspects influencing credibility judgements") %>%
+          title_tabset = "Netherlands", tabgroup = "AI Journalism Attitudes/Aspects influencing Credibility Judgements") %>%
   add_viz(x_vars = q8_vars,
+          x_var_labels = q8_labels,
+          stack_order = q8_order,
+          color_palette = q8_palette,
           filter = ~ country == "Denmark",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Denmark", tabgroup = "AI Journalism Attitudes/Aspects influencing credibility judgements") %>%
+          title_tabset = "Denmark", tabgroup = "AI Journalism Attitudes/Aspects influencing Credibility Judgements") %>%
   add_viz(x_vars = q8_vars,
+          x_var_labels = q8_labels,
+          stack_order = q8_order,
+          color_palette = q8_palette,
           filter = ~ country == "USA",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "USA", tabgroup = "AI Journalism Attitudes/Aspects influencing credibility judgements") %>%
+          title_tabset = "USA", tabgroup = "AI Journalism Attitudes/Aspects influencing Credibility Judgements") %>%
   add_viz(x_vars = q8_vars,
+          x_var_labels = q8_labels,
+          stack_order = q8_order,
+          color_palette = q8_palette,
           filter = ~ country == "Brazil",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Brazil", tabgroup = "AI Journalism Attitudes/Aspects influencing credibility judgements") %>%
+          title_tabset = "Brazil", tabgroup = "AI Journalism Attitudes/Aspects influencing Credibility Judgements") %>%
   add_viz(x_vars = q8_vars,
+          x_var_labels = q8_labels,
+          stack_order = q8_order,
+          color_palette = q8_palette,
           filter = ~ country == "South Africa",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "South Africa", tabgroup = "AI Journalism Attitudes/Aspects influencing credibility judgements") %>%
+          title_tabset = "South Africa", tabgroup = "AI Journalism Attitudes/Aspects influencing Credibility Judgements") %>%
   add_viz(x_vars = q8_vars,
+          x_var_labels = q8_labels,
+          stack_order = q8_order,
+          color_palette = q8_palette,
           filter = ~ country == "Japan",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Japan", tabgroup = "AI Journalism Attitudes/Aspects influencing credibility judgements")
+          title_tabset = "Japan", tabgroup = "AI Journalism Attitudes/Aspects influencing Credibility Judgements")
 
 Credibility %>% preview
 ```
@@ -471,59 +630,91 @@ Credibility %>% preview
 ### Regulatory models
 
 ```{r}
-q10_vars = c("Q10_developers_are_responsible", "Q10_free_companies",
+q10_vars <- c("Q10_developers_are_responsible", "Q10_free_companies",
              "Q10_government_decides", "Q10_involve_civil_society",
-             "Q10_only_regulate_high_risk", "Q10_developers_are_responsible")
+             "Q10_only_regulate_high_risk", "Q10_right_to_complain")
+
+q10_labels = c(
+  Q10_developers_are_responsible = "The developers of AI should make sure that the technology is safe to use and respects the rights of users.",
+  Q10_free_companies             = "AI should not be regulated, so that companies are free to develop AI without interference from government regulations.",
+  Q10_government_decides         = "The government should determine when AI is safe to use.",
+  Q10_involve_civil_society      = "Developers of AI should involve users or groups, like civil society and consumer organisations in the design of AI.",
+  Q10_only_regulate_high_risk    = "Only the riskiest systems with high risks for human rights, health, safety or the planet should be regulated, because too much regulation is bad for innovation.",
+  Q10_right_to_complain          = "Users should have a right to complain when their rights and interests are not respected."
+)
+
+q10_order   = c("Strongly agree", "Agree", "Neither agree, nor disagree",
+                "Disagree", "Strongly disagree")
+q10_palette = c("#4575b4", "#91bfdb", "#ffffbf", "#fc8d59", "#d73027")
 
 RegulatoryModels = create_content(data = data, type = "stackedbar") %>%
   add_viz(x_vars = q10_vars,
+          x_var_labels = q10_labels,
+          stack_order = q10_order,
+          color_palette = q10_palette,
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "AI News Engagement Intentions",
-          title_tabset = "Overall", tabgroup = "Regulatory Preferences/Who gets to decide") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "Overall", tabgroup = "Regulatory Preferences/Attitudes towards Regulation") %>%
   add_viz(x_vars = q10_vars,
+          x_var_labels = q10_labels,
+          stack_order = q10_order,
+          color_palette = q10_palette,
           filter = ~ country == "Netherlands",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "AI News Engagement Intentions",
-          title_tabset = "Netherlands", tabgroup = "Regulatory Preferences/Who gets to decide") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "Netherlands", tabgroup = "Regulatory Preferences/Attitudes towards Regulation") %>%
   add_viz(x_vars = q10_vars,
+          x_var_labels = q10_labels,
+          stack_order = q10_order,
+          color_palette = q10_palette,
           filter = ~ country == "Denmark",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "AI News Engagement Intentions",
-          title_tabset = "Denmark", tabgroup = "Regulatory Preferences/Who gets to decide") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "Denmark", tabgroup = "Regulatory Preferences/Attitudes towards Regulation") %>%
   add_viz(x_vars = q10_vars,
+          x_var_labels = q10_labels,
+          stack_order = q10_order,
+          color_palette = q10_palette,
           filter = ~ country == "USA",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "AI News Engagement Intentions",
-          title_tabset = "USA", tabgroup = "Regulatory Preferences/Who gets to decide") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "USA", tabgroup = "Regulatory Preferences/Attitudes towards Regulation") %>%
   add_viz(x_vars = q10_vars,
+          x_var_labels = q10_labels,
+          stack_order = q10_order,
+          color_palette = q10_palette,
           filter = ~ country == "Brazil",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "AI News Engagement Intentions",
-          title_tabset = "Brazil", tabgroup = "Regulatory Preferences/Who gets to decide") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "Brazil", tabgroup = "Regulatory Preferences/Attitudes towards Regulation") %>%
   add_viz(x_vars = q10_vars,
+          x_var_labels = q10_labels,
+          stack_order = q10_order,
+          color_palette = q10_palette,
           filter = ~ country == "South Africa",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "AI News Engagement Intentions",
-          title_tabset = "South Africa", tabgroup = "Regulatory Preferences/Who gets to decide") %>%
+          tooltip_suffix = "%", title = "",
+          title_tabset = "South Africa", tabgroup = "Regulatory Preferences/Attitudes towards Regulation") %>%
   add_viz(x_vars = q10_vars,
+          x_var_labels = q10_labels,
+          stack_order = q10_order,
+          color_palette = q10_palette,
           filter = ~ country == "Japan",
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
-          tooltip_suffix = "%", title = "AI News Engagement Intentions",
-          title_tabset = "Japan", tabgroup = "Regulatory Preferences/Who gets to decide")
+          tooltip_suffix = "%", title = "",
+          title_tabset = "Japan", tabgroup = "Regulatory Preferences/Attitudes towards Regulation")
 
 RegulatoryModels %>% preview
-
-
 ```
 
-### Top 3 aspects of life that AI regulation should protect
+### Regulatory Priorities
 
 ```{r}
 q11_colors = c(
@@ -565,49 +756,49 @@ Q11_mentions = create_content(data = q11_long, type = "bar") %>%
           x_order = item_order(q11_long),
           color_palette = q11_colors[item_order(q11_long)],
           x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
-          title = "Top 3 aspects of life that AI regulation should protect", title_tabset = "Overall",
-          tabgroup = "Regulatory Preferences/Top 3 aspects of life that AI regulation should protect") %>%
+          title = "Regulatory Priorities", title_tabset = "Overall",
+          tabgroup = "Regulatory Preferences/Regulatory Priorities") %>%
   add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
           x_order = item_order(q11_long %>% filter(country == "Netherlands")),
           color_palette = q11_colors[item_order(q11_long %>% filter(country == "Netherlands"))],
           filter = ~ country == "Netherlands",
           x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
-          title = "Top 3 aspects of life that AI regulation should protect ", title_tabset = "Netherlands",
-          tabgroup = "Regulatory Preferences/Top 3 aspects of life that AI regulation should protect") %>%
+          title = "Regulatory Priorities ", title_tabset = "Netherlands",
+          tabgroup = "Regulatory Preferences/Regulatory Priorities") %>%
   add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
           x_order = item_order(q11_long %>% filter(country == "Denmark")),
           color_palette = q11_colors[item_order(q11_long %>% filter(country == "Denmark"))],          filter = ~ country == "Denmark",
           x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
-          title = "Top 3 aspects of life that AI regulation should protect", title_tabset = "Denmark",
-          tabgroup = "Regulatory Preferences/Top 3 aspects of life that AI regulation should protect") %>%
+          title = "Regulatory Priorities", title_tabset = "Denmark",
+          tabgroup = "Regulatory Preferences/Regulatory Priorities") %>%
   add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
           x_order = item_order(q11_long %>% filter(country == "USA")),
           color_palette = q11_colors[item_order(q11_long %>% filter(country == "USA"))],
           filter = ~ country == "USA",
           x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
-          title = "Top 3 aspects of life that AI regulation should protect", title_tabset = "USA",
-          tabgroup = "Regulatory Preferences/Top 3 aspects of life that AI regulation should protect") %>%
+          title = "Regulatory Priorities", title_tabset = "USA",
+          tabgroup = "Regulatory Preferences/Regulatory Priorities") %>%
   add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
           x_order = item_order(q11_long %>% filter(country == "Brazil")),
           color_palette = q11_colors[item_order(q11_long %>% filter(country == "Brazil"))],
           filter = ~ country == "Brazil",
           x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
-          title = "Top 3 aspects of life that AI regulation should protect", title_tabset = "Brazil",
-          tabgroup = "Regulatory Preferences/Top 3 aspects of life that AI regulation should protect") %>%
+          title = "Regulatory Priorities", title_tabset = "Brazil",
+          tabgroup = "Regulatory Preferences/Regulatory Priorities") %>%
   add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
           x_order = item_order(q11_long %>% filter(country == "South Africa")),
           color_palette = q11_colors[item_order(q11_long %>% filter(country == "South Africa"))],
           filter = ~ country == "South Africa",
           x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
-          title = "Top 3 aspects of life that AI regulation should protect", title_tabset = "South Africa",
-          tabgroup = "Regulatory Preferences/Top 3 aspects of life that AI regulation should protect") %>%
+          title = "Regulatory Priorities", title_tabset = "South Africa",
+          tabgroup = "Regulatory Preferences/Regulatory Priorities") %>%
   add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
           x_order = item_order(q11_long %>% filter(country == "Japan")),
           color_palette = q11_colors[item_order(q11_long %>% filter(country == "Japan"))],
           filter = ~ country == "Japan",
           x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
-          title = "Top 3 aspects of life that AI regulation should protect", title_tabset = "Japan",
-          tabgroup = "Regulatory Preferences/Top 3 aspects of life that AI regulation should protect")
+          title = "Regulatory Priorities", title_tabset = "Japan",
+          tabgroup = "Regulatory Preferences/Regulatory Priorities")
 
 Q11_mentions %>% preview
 ```
@@ -637,13 +828,15 @@ page_authenticity_rankings = create_page("Authenticity Rankings") %>%
   add_content(authenticity_ranking_viz)
 
 page_ai_journalism_attitudes = create_page("AI Journalism Attitudes", data) %>%
+  add_text('To measure **Willingness to Engage**, we asked respondents: *"If you know from the beginning that journalistic content is generated with the help of AI, how willing are you to ..."*\n\n\n\nTo measure **Attitudes towards Hyperpersonalisation**, we asked respondents: *"Hyper-personalization uses generative AI to tailor news to your preferences and present it in flexible formatsways. For example, generative AI can change turn a news article into an audio clip or a summary, making it more engaging and relevant for you. To what extent do you agree with the following statements?"*\n\n\n\nTo measure **Aspects influencing Credibility Judgements**, we asked respondents: *"When you read an article that may be written by generative AI, how does each of the following factors influence how much you believe the content? "*') %>%
   add_content(AINewsEngagement) %>%
   add_content(Hyperpersonalisation) %>% 
   add_content(Credibility)
 
-page_regulatory = create_page("Regulatory Preferences", q11_long) %>%
-  add_text("We measured this by asking ...") %>%
-  add_content(Q11_mentions)
+page_regulatory = create_page("Regulatory Preferences") %>%
+  add_text('To measure **Regulatory Priorities**, we asked respondents: *"Which aspects of your life should AI regulation protect? Choose your top three aspects."*\n\n\n\nTo measure **Attitudes towards Regulation**, we asked respondents: *"To what extent do you agree with the following statements regarding AI regulation."*') %>%
+  add_content(Q11_mentions) %>%
+  add_content(RegulatoryModels)
 ```
 
 ```{r}
@@ -656,6 +849,7 @@ authenticity_menu = navbar_menu(
   text = "Authenticity Perceptions",
   pages = c("Authenticity Feelings", "Authenticity Rankings")
 )
+
 
 AIJournalismDashboard = create_dashboard(
   title = "AI & Journalism Explorer",
@@ -682,10 +876,10 @@ generate_dashboard(AIJournalismDashboard, render = TRUE)
 ```{r}
 generate_dashboard(AIJournalismDashboard, render = TRUE)
 
-publish_dashboard(
-  message = "First version",  
-  path = "/docs"               
-)
+#publish_dashboard(
+#  message = "First version",  
+#  path = "/docs"               
+#)
 
 #To update your dashboard later, use:
 #   update_dashboard(message = "Your update message")
