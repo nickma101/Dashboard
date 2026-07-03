@@ -119,6 +119,7 @@ ul.task-list li input[type="checkbox"] {
 
 <link rel="stylesheet" href="assets/modal.css">
 <link rel="stylesheet" href="assets/pagination.css">
+<link rel="stylesheet" href="custom.css">
 </head>
 
 <body class="nav-fixed quarto-light">
@@ -148,8 +149,16 @@ ul.task-list li input[type="checkbox"] {
  <span class="dropdown-text">GenAI use</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./trust.html">
- <span class="dropdown-text">Trust</span></a>
+    <a class="dropdown-item" href="./trust_in_news_media.html">
+ <span class="dropdown-text">Trust in News Media</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./trust_in_chatgpt.html">
+ <span class="dropdown-text">Trust in ChatGPT</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./trust_in_social_media.html">
+ <span class="dropdown-text">Trust in Social Media</span></a>
   </li>  
     </ul>
   </li>
@@ -168,14 +177,44 @@ ul.task-list li input[type="checkbox"] {
   </li>  
     </ul>
   </li>
-  <li class="nav-item">
-    <a class="nav-link" href="./ai_journalism_attitudes.html"> 
-<span class="menu-text">AI Journalism Attitudes</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-ai-journalism-attitudes" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">AI Journalism Attitudes</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-ai-journalism-attitudes">    
+        <li>
+    <a class="dropdown-item" href="./journalistic_principles.html">
+ <span class="dropdown-text">Journalistic Principles</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./regulatory_preferences.html"> 
-<span class="menu-text">Regulatory Preferences</span></a>
+        <li>
+    <a class="dropdown-item" href="./willingness_to_engage.html">
+ <span class="dropdown-text">Willingness to Engage</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./attitudes_towards_hyperpersonalisation.html">
+ <span class="dropdown-text">Attitudes towards Hyperpersonalisation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aspects_influencing_credibility_judgements.html">
+ <span class="dropdown-text">Aspects influencing Credibility Judgements</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-regulatory-preferences" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Regulatory Preferences</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-regulatory-preferences">    
+        <li>
+    <a class="dropdown-item" href="./regulatory_priorities.html">
+ <span class="dropdown-text">Regulatory Priorities</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./attitudes_towards_regulation.html">
+ <span class="dropdown-text">Attitudes towards Regulation</span></a>
+  </li>  
+    </ul>
+  </li>
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -213,8 +252,8 @@ ul.task-list li input[type="checkbox"] {
 <p>To measure this, we asked respondents: <em>“What do you consider authentic journalistic content? Please rank the following from 1 to 5, where 1 is most authentic and 5 is least authentic.”</em></p>
 <div class="cell">
 <div class="cell-output-display">
-<div class="highchart html-widget html-fill-item" id="htmlwidget-c8119ce73fb40772a6eb" style="width:100%;height:433px;"></div>
-<script type="application/json" data-for="htmlwidget-c8119ce73fb40772a6eb">{"x":{"hc_opts":{"chart":{"reflow":true,"type":"line"},"title":{"text":""},"yAxis":{"title":{"text":"Rank"},"max":5,"min":1,"reversed":true},"credits":{"enabled":false},"exporting":{"enabled":false},"boost":{"enabled":false},"plotOptions":{"series":{"label":{"enabled":false},"turboThreshold":0},"treemap":{"layoutAlgorithm":"squarified"}},"xAxis":{"title":{"text":"country"},"categories":["Brazil","Denmark","Japan","Netherlands","South Africa","USA"],"type":"category"},"series":[{"name":"Journalistic content that is based on facts or reality","data":[["Brazil",5],["Denmark",5],["Japan",5],["Netherlands",5],["South Africa",5],["USA",5]],"type":"line"},{"name":"Journalistic content where it is easy to identify the author and sources of information","data":[["Brazil",4],["Denmark",4],["Japan",3],["Netherlands",3],["South Africa",4],["USA",3]],"type":"line"},{"name":"Journalistic content that expresses the writer's character, beliefs or personality","data":[["Brazil",1],["Denmark",1],["Japan",1],["Netherlands",1],["South Africa",1],["USA",1]],"type":"line"},{"name":"Journalistic content that follows established journalistic values, such as honesty, impartiality and/or accuracy","data":[["Brazil",3],["Denmark",3],["Japan",4],["Netherlands",4],["South Africa",3],["USA",4]],"type":"line"},{"name":"Journalistic content that is written by a human being","data":[["Brazil",2],["Denmark",2],["Japan",2],["Netherlands",2],["South Africa",2],["USA",2]],"type":"line"}]},"theme":{"chart":{"backgroundColor":"transparent"},"colors":["#7cb5ec","#434348","#90ed7d","#f7a35c","#8085e9","#f15c80","#e4d354","#2b908f","#f45b5b","#91e8e1"]},"conf_opts":{"global":{"Date":null,"VMLRadialGradientURL":"http =//code.highcharts.com/list(version)/gfx/vml-radial-gradient.png","canvasToolsURL":"http =//code.highcharts.com/list(version)/modules/canvas-tools.js","getTimezoneOffset":null,"timezoneOffset":0,"useUTC":true},"lang":{"contextButtonTitle":"Chart context menu","decimalPoint":".","downloadCSV":"Download CSV","downloadJPEG":"Download JPEG image","downloadPDF":"Download PDF document","downloadPNG":"Download PNG image","downloadSVG":"Download SVG vector image","downloadXLS":"Download XLS","drillUpText":"◁ Back to {series.name}","exitFullscreen":"Exit from full screen","exportData":{"annotationHeader":"Annotations","categoryDatetimeHeader":"DateTime","categoryHeader":"Category"},"hideData":"Hide data table","invalidDate":null,"loading":"Loading...","months":["January","February","March","April","May","June","July","August","September","October","November","December"],"noData":"No data to display","numericSymbolMagnitude":1000,"numericSymbols":["k","M","G","T","P","E"],"printChart":"Print chart","resetZoom":"Reset zoom","resetZoomTitle":"Reset zoom level 1:1","shortMonths":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"shortWeekdays":["Sat","Sun","Mon","Tue","Wed","Thu","Fri"],"thousandsSep":" ","viewData":"View data table","viewFullscreen":"View in full screen","weekdays":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]}},"type":"chart","fonts":[],"debug":false},"evals":[],"jsHooks":[]}</script>
+<div class="highchart html-widget html-fill-item" id="htmlwidget-a248dc81378fb6b2cf13" style="width:100%;height:433px;"></div>
+<script type="application/json" data-for="htmlwidget-a248dc81378fb6b2cf13">{"x":{"hc_opts":{"chart":{"reflow":true,"type":"line"},"title":{"text":""},"yAxis":{"title":{"text":"Rank"},"max":5,"min":1,"reversed":true},"credits":{"enabled":false},"exporting":{"enabled":false},"boost":{"enabled":false},"plotOptions":{"series":{"label":{"enabled":false},"turboThreshold":0},"treemap":{"layoutAlgorithm":"squarified"}},"xAxis":{"title":{"text":"country"},"categories":["Brazil","Denmark","Japan","Netherlands","South Africa","USA"],"type":"category"},"series":[{"name":"Journalistic content that is based on facts or reality","data":[["Brazil",5],["Denmark",5],["Japan",5],["Netherlands",5],["South Africa",5],["USA",5]],"type":"line"},{"name":"Journalistic content where it is easy to identify the author and sources of information","data":[["Brazil",4],["Denmark",4],["Japan",3],["Netherlands",3],["South Africa",4],["USA",3]],"type":"line"},{"name":"Journalistic content that expresses the writer's character, beliefs or personality","data":[["Brazil",1],["Denmark",1],["Japan",1],["Netherlands",1],["South Africa",1],["USA",1]],"type":"line"},{"name":"Journalistic content that follows established journalistic values, such as honesty, impartiality and/or accuracy","data":[["Brazil",3],["Denmark",3],["Japan",4],["Netherlands",4],["South Africa",3],["USA",4]],"type":"line"},{"name":"Journalistic content that is written by a human being","data":[["Brazil",2],["Denmark",2],["Japan",2],["Netherlands",2],["South Africa",2],["USA",2]],"type":"line"}]},"theme":{"chart":{"backgroundColor":"transparent"},"colors":["#7cb5ec","#434348","#90ed7d","#f7a35c","#8085e9","#f15c80","#e4d354","#2b908f","#f45b5b","#91e8e1"]},"conf_opts":{"global":{"Date":null,"VMLRadialGradientURL":"http =//code.highcharts.com/list(version)/gfx/vml-radial-gradient.png","canvasToolsURL":"http =//code.highcharts.com/list(version)/modules/canvas-tools.js","getTimezoneOffset":null,"timezoneOffset":0,"useUTC":true},"lang":{"contextButtonTitle":"Chart context menu","decimalPoint":".","downloadCSV":"Download CSV","downloadJPEG":"Download JPEG image","downloadPDF":"Download PDF document","downloadPNG":"Download PNG image","downloadSVG":"Download SVG vector image","downloadXLS":"Download XLS","drillUpText":"◁ Back to {series.name}","exitFullscreen":"Exit from full screen","exportData":{"annotationHeader":"Annotations","categoryDatetimeHeader":"DateTime","categoryHeader":"Category"},"hideData":"Hide data table","invalidDate":null,"loading":"Loading...","months":["January","February","March","April","May","June","July","August","September","October","November","December"],"noData":"No data to display","numericSymbolMagnitude":1000,"numericSymbols":["k","M","G","T","P","E"],"printChart":"Print chart","resetZoom":"Reset zoom","resetZoomTitle":"Reset zoom level 1:1","shortMonths":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"shortWeekdays":["Sat","Sun","Mon","Tue","Wed","Thu","Fri"],"thousandsSep":" ","viewData":"View data table","viewFullscreen":"View in full screen","weekdays":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]}},"type":"chart","fonts":[],"debug":false},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 

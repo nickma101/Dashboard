@@ -1,0 +1,7 @@
+/* Disable clicking on chart legend items so answer categories cannot be
+   hidden (with percent stacking, hiding a series re-normalises the rest).
+   The legend stays visible and acts purely as a colour key. */
+.highcharts-legend-item {
+  pointer-events: none;
+  cursor: default;
+}

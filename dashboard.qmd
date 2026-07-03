@@ -114,6 +114,37 @@ data = data %>%
     education = fct_relevel(education, "Low", "Middle", "High")
   )
 
+# Helper: build a stacked-bar subgroup breakdown with nested
+# demographic-level and country tabs (All Countries first, then each country)
+add_stack_subgroups = function(content, x_vars, x_labels, stack_order, palette, tab_prefix) {
+  demo = list(
+    list(var = "age_cat",   label = "By Age Group", levels = c("18-24", "25-34", "35-44", "45-54", "55-70")),
+    list(var = "gender",    label = "By Gender",    levels = c("Female", "Male")),
+    list(var = "education", label = "By Education", levels = c("Low", "Middle", "High"))
+  )
+  countries = c("Netherlands", "Denmark", "USA", "Brazil", "South Africa", "Japan")
+  for (d in demo) {
+    for (lev in d$levels) {
+      tg = paste0(tab_prefix, "/", d$label, "/", lev)
+      content = content %>%
+        add_viz(x_vars = x_vars, x_var_labels = x_labels, stack_order = stack_order,
+                color_palette = palette, stacked_type = "percent",
+                filter = as.formula(sprintf('~ %s == "%s"', d$var, lev)),
+                x_label = "", y_label = "Percent (%)", tooltip_suffix = "%", title = "",
+                title_tabset = "All Countries", tabgroup = tg)
+      for (co in countries) {
+        content = content %>%
+          add_viz(x_vars = x_vars, x_var_labels = x_labels, stack_order = stack_order,
+                  color_palette = palette, stacked_type = "percent",
+                  filter = as.formula(sprintf('~ %s == "%s" & country == "%s"', d$var, lev, co)),
+                  x_label = "", y_label = "Percent (%)", tooltip_suffix = "%", title = "",
+                  title_tabset = co, tabgroup = tg)
+      }
+    }
+  }
+  content
+}
+
 # Trust preprocessing
 data = data %>%
   mutate(trust_news = case_when(
@@ -127,21 +158,27 @@ data = data %>%
     kari_trust_chatGPT > 7 ~ "high",
     TRUE ~ 'medium'
   ),
-  trust_chatGPT = fct_relevel(trust_chatGPT, 'low', 'medium', 'high')
+  trust_chatGPT = fct_relevel(trust_chatGPT, 'low', 'medium', 'high'),
+  trust_social_media = case_when(
+    kari_trust_social_media < 4 ~ "low",
+    kari_trust_social_media > 7 ~ "high",
+    TRUE ~ 'medium'
+  ),
+  trust_social_media = fct_relevel(trust_social_media, 'low', 'medium', 'high')
   )
 
 # Q5 feeling thermometers (0 = negative, 100 = positive): reshape the five
 # items into long format so they can be compared as side-by-side box plots.
 q5_long = data %>%
   select(
-    country,
+    country, age_cat, gender, education,
     `Check if the content is based on facts or reality`                                          = Q5_fact_check,
     `Identify the origins of the content, such as the author or the sources of information`      = Q5_identify_contents_origin,
     `Understand the writers' character, beliefs or personality`                                  = Q5_understanding_the_writer,
     `Understand which journalistic values, such as impartiality or accuracy, the content represents` = Q5_understanding_journalistic_values,
     `The ability to judge whether a human being was involved in the writing of the content`      = Q5_judging_human_involvement
   ) %>%
-  pivot_longer(-country, names_to = "item", values_to = "value") %>%
+  pivot_longer(-c(country, age_cat, gender, education), names_to = "item", values_to = "value") %>%
   mutate(item = fct_inorder(item))
 
 authenticity_rankings <- data %>%
@@ -189,33 +226,33 @@ home = create_page("Home", is_landing_page = TRUE) %>%
 scale_1_10 = as.character(1:10)
 
 GenAIuse = create_content(data = data, type = "bar") %>%
-    add_viz(x_var = "GenAI_use", bar_type = "percent",
+  add_viz(x_var = "GenAI_use", bar_type = "percent",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Overall", tabgroup = "GenAI use") %>%
+          title = "", title_tabset = "All Countries", tabgroup = "GenAI Use across countries") %>%
   add_viz(x_var = "GenAI_use", bar_type = "percent",
           filter = ~ country == "Netherlands",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Netherlands", tabgroup = "GenAI use") %>%
+          title = "", title_tabset = "Netherlands", tabgroup = "GenAI Use across countries") %>%
   add_viz(x_var = "GenAI_use", bar_type = "percent",
           filter = ~ country == "Denmark",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Denmark", tabgroup = "GenAI use") %>%
+          title = "", title_tabset = "Denmark", tabgroup = "GenAI Use across countries") %>%
   add_viz(x_var = "GenAI_use", bar_type = "percent",
           filter = ~ country == "USA",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "USA", tabgroup = "GenAI use") %>%
+          title = "", title_tabset = "USA", tabgroup = "GenAI Use across countries") %>%
   add_viz(x_var = "GenAI_use", bar_type = "percent",
           filter = ~ country == "Brazil",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Brazil", tabgroup = "GenAI use") %>%
+          title = "", title_tabset = "Brazil", tabgroup = "GenAI Use across countries") %>%
   add_viz(x_var = "GenAI_use", bar_type = "percent",
           filter = ~ country == "South Africa",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "South Africa", tabgroup = "GenAI use") %>%
+          title = "", title_tabset = "South Africa", tabgroup = "GenAI Use across countries") %>%
   add_viz(x_var = "GenAI_use", bar_type = "percent",
           filter = ~ country == "Japan",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Japan", tabgroup = "GenAI use")
+          title = "", title_tabset = "Japan", tabgroup = "GenAI Use across countries")
  
 
 GenAIuse_breakdown = create_content(data = data, type = "bar") %>%
@@ -249,30 +286,31 @@ GenAIuse_breakdown = create_content(data = data, type = "bar") %>%
           title = "", title_tabset = "Japan", tabgroup = "GenAI Use among Different Subgroups/By Age Group") %>%
   # By gender
   add_viz(x_var = "GenAI_use", bar_type = "percent", group_var = "gender",
+          filter = ~ gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "All Countries", tabgroup = "GenAI Use among Different Subgroups/By Gender") %>%
   add_viz(x_var = "GenAI_use", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "Netherlands",
+          filter = ~ country == "Netherlands" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "Netherlands", tabgroup = "GenAI Use among Different Subgroups/By Gender") %>%
   add_viz(x_var = "GenAI_use", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "Denmark",
+          filter = ~ country == "Denmark" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "Denmark", tabgroup = "GenAI Use among Different Subgroups/By Gender") %>%
   add_viz(x_var = "GenAI_use", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "USA",
+          filter = ~ country == "USA" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "USA", tabgroup = "GenAI Use among Different Subgroups/By Gender") %>%
   add_viz(x_var = "GenAI_use", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "Brazil",
+          filter = ~ country == "Brazil" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "Brazil", tabgroup = "GenAI Use among Different Subgroups/By Gender") %>%
   add_viz(x_var = "GenAI_use", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "South Africa",
+          filter = ~ country == "South Africa" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "South Africa", tabgroup = "GenAI Use among Different Subgroups/By Gender") %>%
   add_viz(x_var = "GenAI_use", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "Japan",
+          filter = ~ country == "Japan" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "Japan", tabgroup = "GenAI Use among Different Subgroups/By Gender") %>%
   # By education
@@ -314,33 +352,33 @@ GenAIuse_breakdown %>% preview
 
 ```{r}
 NewsTrust = create_content(data = data, type = "bar") %>%
-  add_viz(x_var = "trust_news", bar_type = "percent", 
+  add_viz(x_var = "trust_news", bar_type = "percent",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Overall", tabgroup = "Trust in news media") %>%
-  add_viz(x_var = "trust_news", bar_type = "percent", 
+          title = "", title_tabset = "All Countries", tabgroup = "Trust in News Media across countries") %>%
+  add_viz(x_var = "trust_news", bar_type = "percent",
           filter = ~ country == "Netherlands",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Netherlands", tabgroup = "Trust in news media") %>%
-  add_viz(x_var = "trust_news", bar_type = "percent", 
+          title = "", title_tabset = "Netherlands", tabgroup = "Trust in News Media across countries") %>%
+  add_viz(x_var = "trust_news", bar_type = "percent",
           filter = ~ country == "Denmark",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Denmark", tabgroup = "Trust in news media") %>%
-  add_viz(x_var = "trust_news", bar_type = "percent", 
+          title = "", title_tabset = "Denmark", tabgroup = "Trust in News Media across countries") %>%
+  add_viz(x_var = "trust_news", bar_type = "percent",
           filter = ~ country == "USA",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "USA", tabgroup = "Trust in news media") %>%
-  add_viz(x_var = "trust_news", bar_type = "percent", 
+          title = "", title_tabset = "USA", tabgroup = "Trust in News Media across countries") %>%
+  add_viz(x_var = "trust_news", bar_type = "percent",
           filter = ~ country == "Brazil",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Brazil", tabgroup = "Trust in news media") %>%
-  add_viz(x_var = "trust_news", bar_type = "percent", 
+          title = "", title_tabset = "Brazil", tabgroup = "Trust in News Media across countries") %>%
+  add_viz(x_var = "trust_news", bar_type = "percent",
           filter = ~ country == "South Africa",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "South Africa", tabgroup = "Trust in news media") %>%
-  add_viz(x_var = "trust_news", bar_type = "percent", 
+          title = "", title_tabset = "South Africa", tabgroup = "Trust in News Media across countries") %>%
+  add_viz(x_var = "trust_news", bar_type = "percent",
           filter = ~ country == "Japan",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Japan", tabgroup = "Trust in news media")
+          title = "", title_tabset = "Japan", tabgroup = "Trust in News Media across countries")
 
 NewsTrust %>% preview
 ```
@@ -351,31 +389,31 @@ NewsTrust %>% preview
 ChatGPTTrust = create_content(data = data, type = "bar") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Overall", tabgroup = "Trust in ChatGPT") %>%
-  add_viz(x_var = "trust_chatGPT", bar_type = "percent", 
+          title = "", title_tabset = "All Countries", tabgroup = "Trust in ChatGPT across countries") %>%
+  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
           filter = ~ country == "Netherlands",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Netherlands", tabgroup = "Trust in ChatGPT") %>%
-  add_viz(x_var = "trust_chatGPT", bar_type = "percent", 
+          title = "", title_tabset = "Netherlands", tabgroup = "Trust in ChatGPT across countries") %>%
+  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
           filter = ~ country == "Denmark",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Denmark", tabgroup = "Trust in ChatGPT") %>%
-  add_viz(x_var = "trust_chatGPT", bar_type = "percent", 
+          title = "", title_tabset = "Denmark", tabgroup = "Trust in ChatGPT across countries") %>%
+  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
           filter = ~ country == "USA",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "USA", tabgroup = "Trust in ChatGPT") %>%
-  add_viz(x_var = "trust_chatGPT", bar_type = "percent", 
+          title = "", title_tabset = "USA", tabgroup = "Trust in ChatGPT across countries") %>%
+  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
           filter = ~ country == "Brazil",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Brazil", tabgroup = "Trust in ChatGPT") %>%
-  add_viz(x_var = "trust_chatGPT", bar_type = "percent", 
+          title = "", title_tabset = "Brazil", tabgroup = "Trust in ChatGPT across countries") %>%
+  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
           filter = ~ country == "South Africa",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "South Africa", tabgroup = "Trust in ChatGPT") %>%
-  add_viz(x_var = "trust_chatGPT", bar_type = "percent", 
+          title = "", title_tabset = "South Africa", tabgroup = "Trust in ChatGPT across countries") %>%
+  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
           filter = ~ country == "Japan",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Japan", tabgroup = "Trust in ChatGPT")
+          title = "", title_tabset = "Japan", tabgroup = "Trust in ChatGPT across countries")
 
 ```
 
@@ -384,175 +422,299 @@ NewsTrust_breakdown = create_content(data = data, type = "bar") %>%
   # By age group
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "age_cat",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "All Countries", tabgroup = "Trust among Different Subgroups/News/By Age Group") %>%
+          title = "", title_tabset = "All Countries", tabgroup = "Trust in News Media among Different Subgroups/By Age Group") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "age_cat",
           filter = ~ country == "Netherlands",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Netherlands", tabgroup = "Trust among Different Subgroups/News/By Age Group") %>%
+          title = "", title_tabset = "Netherlands", tabgroup = "Trust in News Media among Different Subgroups/By Age Group") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "age_cat",
           filter = ~ country == "Denmark",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Denmark", tabgroup = "Trust among Different Subgroups/News/By Age Group") %>%
+          title = "", title_tabset = "Denmark", tabgroup = "Trust in News Media among Different Subgroups/By Age Group") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "age_cat",
           filter = ~ country == "USA",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "USA", tabgroup = "Trust among Different Subgroups/News/By Age Group") %>%
+          title = "", title_tabset = "USA", tabgroup = "Trust in News Media among Different Subgroups/By Age Group") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "age_cat",
           filter = ~ country == "Brazil",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Brazil", tabgroup = "Trust among Different Subgroups/News/By Age Group") %>%
+          title = "", title_tabset = "Brazil", tabgroup = "Trust in News Media among Different Subgroups/By Age Group") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "age_cat",
           filter = ~ country == "South Africa",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "South Africa", tabgroup = "Trust among Different Subgroups/News/By Age Group") %>%
+          title = "", title_tabset = "South Africa", tabgroup = "Trust in News Media among Different Subgroups/By Age Group") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "age_cat",
           filter = ~ country == "Japan",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Japan", tabgroup = "Trust among Different Subgroups/News/By Age Group") %>%
+          title = "", title_tabset = "Japan", tabgroup = "Trust in News Media among Different Subgroups/By Age Group") %>%
   # By gender
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "gender",
+          filter = ~ gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "All Countries", tabgroup = "Trust among Different Subgroups/News/By Gender") %>%
+          title = "", title_tabset = "All Countries", tabgroup = "Trust in News Media among Different Subgroups/By Gender") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "Netherlands",
+          filter = ~ country == "Netherlands" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Netherlands", tabgroup = "Trust among Different Subgroups/News/By Gender") %>%
+          title = "", title_tabset = "Netherlands", tabgroup = "Trust in News Media among Different Subgroups/By Gender") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "Denmark",
+          filter = ~ country == "Denmark" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Denmark", tabgroup = "Trust among Different Subgroups/News/By Gender") %>%
+          title = "", title_tabset = "Denmark", tabgroup = "Trust in News Media among Different Subgroups/By Gender") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "USA",
+          filter = ~ country == "USA" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "USA", tabgroup = "Trust among Different Subgroups/News/By Gender") %>%
+          title = "", title_tabset = "USA", tabgroup = "Trust in News Media among Different Subgroups/By Gender") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "Brazil",
+          filter = ~ country == "Brazil" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Brazil", tabgroup = "Trust among Different Subgroups/News/By Gender") %>%
+          title = "", title_tabset = "Brazil", tabgroup = "Trust in News Media among Different Subgroups/By Gender") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "South Africa",
+          filter = ~ country == "South Africa" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "South Africa", tabgroup = "Trust among Different Subgroups/News/By Gender") %>%
+          title = "", title_tabset = "South Africa", tabgroup = "Trust in News Media among Different Subgroups/By Gender") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "Japan",
+          filter = ~ country == "Japan" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Japan", tabgroup = "Trust among Different Subgroups/News/By Gender") %>%
+          title = "", title_tabset = "Japan", tabgroup = "Trust in News Media among Different Subgroups/By Gender") %>%
   # By education
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "education",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "All Countries", tabgroup = "Trust among Different Subgroups/News/By Education") %>%
+          title = "", title_tabset = "All Countries", tabgroup = "Trust in News Media among Different Subgroups/By Education") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "education",
           filter = ~ country == "Netherlands",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Netherlands", tabgroup = "Trust among Different Subgroups/News/By Education") %>%
+          title = "", title_tabset = "Netherlands", tabgroup = "Trust in News Media among Different Subgroups/By Education") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "education",
           filter = ~ country == "Denmark",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Denmark", tabgroup = "Trust among Different Subgroups/News/By Education") %>%
+          title = "", title_tabset = "Denmark", tabgroup = "Trust in News Media among Different Subgroups/By Education") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "education",
           filter = ~ country == "USA",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "USA", tabgroup = "Trust among Different Subgroups/News/By Education") %>%
+          title = "", title_tabset = "USA", tabgroup = "Trust in News Media among Different Subgroups/By Education") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "education",
           filter = ~ country == "Brazil",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Brazil", tabgroup = "Trust among Different Subgroups/News/By Education") %>%
+          title = "", title_tabset = "Brazil", tabgroup = "Trust in News Media among Different Subgroups/By Education") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "education",
           filter = ~ country == "South Africa",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "South Africa", tabgroup = "Trust among Different Subgroups/News/By Education") %>%
+          title = "", title_tabset = "South Africa", tabgroup = "Trust in News Media among Different Subgroups/By Education") %>%
   add_viz(x_var = "trust_news", bar_type = "percent", group_var = "education",
           filter = ~ country == "Japan",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Japan", tabgroup = "Trust among Different Subgroups/News/By Education")
+          title = "", title_tabset = "Japan", tabgroup = "Trust in News Media among Different Subgroups/By Education")
 
 ChatGPTTrust_breakdown = create_content(data = data, type = "bar") %>%
   # By age group
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "age_cat",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "All Countries", tabgroup = "Trust among Different Subgroups/ChatGPT/By Age Group") %>%
+          title = "", title_tabset = "All Countries", tabgroup = "Trust in ChatGPT among Different Subgroups/By Age Group") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "age_cat",
           filter = ~ country == "Netherlands",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Netherlands", tabgroup = "Trust among Different Subgroups/ChatGPT/By Age Group") %>%
+          title = "", title_tabset = "Netherlands", tabgroup = "Trust in ChatGPT among Different Subgroups/By Age Group") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "age_cat",
           filter = ~ country == "Denmark",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Denmark", tabgroup = "Trust among Different Subgroups/ChatGPT/By Age Group") %>%
+          title = "", title_tabset = "Denmark", tabgroup = "Trust in ChatGPT among Different Subgroups/By Age Group") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "age_cat",
           filter = ~ country == "USA",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "USA", tabgroup = "Trust among Different Subgroups/ChatGPT/By Age Group") %>%
+          title = "", title_tabset = "USA", tabgroup = "Trust in ChatGPT among Different Subgroups/By Age Group") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "age_cat",
           filter = ~ country == "Brazil",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Brazil", tabgroup = "Trust among Different Subgroups/ChatGPT/By Age Group") %>%
+          title = "", title_tabset = "Brazil", tabgroup = "Trust in ChatGPT among Different Subgroups/By Age Group") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "age_cat",
           filter = ~ country == "South Africa",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "South Africa", tabgroup = "Trust among Different Subgroups/ChatGPT/By Age Group") %>%
+          title = "", title_tabset = "South Africa", tabgroup = "Trust in ChatGPT among Different Subgroups/By Age Group") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "age_cat",
           filter = ~ country == "Japan",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Japan", tabgroup = "Trust among Different Subgroups/ChatGPT/By Age Group") %>%
+          title = "", title_tabset = "Japan", tabgroup = "Trust in ChatGPT among Different Subgroups/By Age Group") %>%
   # By gender
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "gender",
+          filter = ~ gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "All Countries", tabgroup = "Trust among Different Subgroups/ChatGPT/By Gender") %>%
+          title = "", title_tabset = "All Countries", tabgroup = "Trust in ChatGPT among Different Subgroups/By Gender") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "Netherlands",
+          filter = ~ country == "Netherlands" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Netherlands", tabgroup = "Trust among Different Subgroups/ChatGPT/By Gender") %>%
+          title = "", title_tabset = "Netherlands", tabgroup = "Trust in ChatGPT among Different Subgroups/By Gender") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "Denmark",
+          filter = ~ country == "Denmark" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Denmark", tabgroup = "Trust among Different Subgroups/ChatGPT/By Gender") %>%
+          title = "", title_tabset = "Denmark", tabgroup = "Trust in ChatGPT among Different Subgroups/By Gender") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "USA",
+          filter = ~ country == "USA" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "USA", tabgroup = "Trust among Different Subgroups/ChatGPT/By Gender") %>%
+          title = "", title_tabset = "USA", tabgroup = "Trust in ChatGPT among Different Subgroups/By Gender") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "Brazil",
+          filter = ~ country == "Brazil" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Brazil", tabgroup = "Trust among Different Subgroups/ChatGPT/By Gender") %>%
+          title = "", title_tabset = "Brazil", tabgroup = "Trust in ChatGPT among Different Subgroups/By Gender") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "South Africa",
+          filter = ~ country == "South Africa" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "South Africa", tabgroup = "Trust among Different Subgroups/ChatGPT/By Gender") %>%
+          title = "", title_tabset = "South Africa", tabgroup = "Trust in ChatGPT among Different Subgroups/By Gender") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "gender",
-          filter = ~ country == "Japan",
+          filter = ~ country == "Japan" & gender != "Other",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Japan", tabgroup = "Trust among Different Subgroups/ChatGPT/By Gender") %>%
+          title = "", title_tabset = "Japan", tabgroup = "Trust in ChatGPT among Different Subgroups/By Gender") %>%
   # By education
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "education",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "All Countries", tabgroup = "Trust among Different Subgroups/ChatGPT/By Education") %>%
+          title = "", title_tabset = "All Countries", tabgroup = "Trust in ChatGPT among Different Subgroups/By Education") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "education",
           filter = ~ country == "Netherlands",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Netherlands", tabgroup = "Trust among Different Subgroups/ChatGPT/By Education") %>%
+          title = "", title_tabset = "Netherlands", tabgroup = "Trust in ChatGPT among Different Subgroups/By Education") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "education",
           filter = ~ country == "Denmark",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Denmark", tabgroup = "Trust among Different Subgroups/ChatGPT/By Education") %>%
+          title = "", title_tabset = "Denmark", tabgroup = "Trust in ChatGPT among Different Subgroups/By Education") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "education",
           filter = ~ country == "USA",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "USA", tabgroup = "Trust among Different Subgroups/ChatGPT/By Education") %>%
+          title = "", title_tabset = "USA", tabgroup = "Trust in ChatGPT among Different Subgroups/By Education") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "education",
           filter = ~ country == "Brazil",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Brazil", tabgroup = "Trust among Different Subgroups/ChatGPT/By Education") %>%
+          title = "", title_tabset = "Brazil", tabgroup = "Trust in ChatGPT among Different Subgroups/By Education") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "education",
           filter = ~ country == "South Africa",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "South Africa", tabgroup = "Trust among Different Subgroups/ChatGPT/By Education") %>%
+          title = "", title_tabset = "South Africa", tabgroup = "Trust in ChatGPT among Different Subgroups/By Education") %>%
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "education",
           filter = ~ country == "Japan",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Japan", tabgroup = "Trust among Different Subgroups/ChatGPT/By Education")
+          title = "", title_tabset = "Japan", tabgroup = "Trust in ChatGPT among Different Subgroups/By Education")
 
 ChatGPTTrust_breakdown %>% preview
+```
+
+### Social Media Trust
+
+```{r}
+SocialMediaTrust = create_content(data = data, type = "bar") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "All Countries", tabgroup = "Trust in Social Media across countries") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent",
+          filter = ~ country == "Netherlands",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Netherlands", tabgroup = "Trust in Social Media across countries") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent",
+          filter = ~ country == "Denmark",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Denmark", tabgroup = "Trust in Social Media across countries") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent",
+          filter = ~ country == "USA",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "USA", tabgroup = "Trust in Social Media across countries") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent",
+          filter = ~ country == "Brazil",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Brazil", tabgroup = "Trust in Social Media across countries") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent",
+          filter = ~ country == "South Africa",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "South Africa", tabgroup = "Trust in Social Media across countries") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent",
+          filter = ~ country == "Japan",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Japan", tabgroup = "Trust in Social Media across countries")
+
+SocialMediaTrust_breakdown = create_content(data = data, type = "bar") %>%
+  # By age group
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "age_cat",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "All Countries", tabgroup = "Trust in Social Media among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "age_cat",
+          filter = ~ country == "Netherlands",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Netherlands", tabgroup = "Trust in Social Media among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "age_cat",
+          filter = ~ country == "Denmark",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Denmark", tabgroup = "Trust in Social Media among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "age_cat",
+          filter = ~ country == "USA",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "USA", tabgroup = "Trust in Social Media among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "age_cat",
+          filter = ~ country == "Brazil",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Brazil", tabgroup = "Trust in Social Media among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "age_cat",
+          filter = ~ country == "South Africa",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "South Africa", tabgroup = "Trust in Social Media among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "age_cat",
+          filter = ~ country == "Japan",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Japan", tabgroup = "Trust in Social Media among Different Subgroups/By Age Group") %>%
+  # By gender
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "gender",
+          filter = ~ gender != "Other",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "All Countries", tabgroup = "Trust in Social Media among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "gender",
+          filter = ~ country == "Netherlands" & gender != "Other",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Netherlands", tabgroup = "Trust in Social Media among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "gender",
+          filter = ~ country == "Denmark" & gender != "Other",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Denmark", tabgroup = "Trust in Social Media among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "gender",
+          filter = ~ country == "USA" & gender != "Other",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "USA", tabgroup = "Trust in Social Media among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "gender",
+          filter = ~ country == "Brazil" & gender != "Other",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Brazil", tabgroup = "Trust in Social Media among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "gender",
+          filter = ~ country == "South Africa" & gender != "Other",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "South Africa", tabgroup = "Trust in Social Media among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "gender",
+          filter = ~ country == "Japan" & gender != "Other",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Japan", tabgroup = "Trust in Social Media among Different Subgroups/By Gender") %>%
+  # By education
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "education",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "All Countries", tabgroup = "Trust in Social Media among Different Subgroups/By Education") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "education",
+          filter = ~ country == "Netherlands",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Netherlands", tabgroup = "Trust in Social Media among Different Subgroups/By Education") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "education",
+          filter = ~ country == "Denmark",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Denmark", tabgroup = "Trust in Social Media among Different Subgroups/By Education") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "education",
+          filter = ~ country == "USA",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "USA", tabgroup = "Trust in Social Media among Different Subgroups/By Education") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "education",
+          filter = ~ country == "Brazil",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Brazil", tabgroup = "Trust in Social Media among Different Subgroups/By Education") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "education",
+          filter = ~ country == "South Africa",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "South Africa", tabgroup = "Trust in Social Media among Different Subgroups/By Education") %>%
+  add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "education",
+          filter = ~ country == "Japan",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Japan", tabgroup = "Trust in Social Media among Different Subgroups/By Education")
+
+SocialMediaTrust %>% preview
 ```
 
 ## Authenticity
@@ -563,49 +725,273 @@ ChatGPTTrust_breakdown %>% preview
 therm_label = "Feeling thermometer (0 = negative, 100 = positive)"
 
 authenticity_feelings = create_content(data = q5_long, type = "boxplot") %>%
-  add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
-          title = "", title_tabset = "Overall",
+    add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
+          title = "", title_tabset = "All Countries",
           x_label = "", y_label = therm_label,
           tooltip_suffix = " / 100",
-          tabgroup = "Authenticity feelings") %>%
+          tabgroup = "Authenticity Feelings across countries") %>%
   add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
           filter = ~ country == "Netherlands",
           title = "", title_tabset = "Netherlands",
           x_label = "", y_label = therm_label,
           tooltip_suffix = " / 100",
-          tabgroup = "Authenticity feelings") %>%
+          tabgroup = "Authenticity Feelings across countries") %>%
   add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
           filter = ~ country == "Denmark",
           title = "", title_tabset = "Denmark",
           x_label = "", y_label = therm_label,
           tooltip_suffix = " / 100",
-          tabgroup = "Authenticity feelings") %>%
+          tabgroup = "Authenticity Feelings across countries") %>%
   add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
           filter = ~ country == "USA",
           title = "", title_tabset = "USA",
           x_label = "", y_label = therm_label,
           tooltip_suffix = " / 100",
-          tabgroup = "Authenticity feelings") %>%
+          tabgroup = "Authenticity Feelings across countries") %>%
   add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
           filter = ~ country == "Brazil",
           title = "", title_tabset = "Brazil",
           x_label = "", y_label = therm_label,
           tooltip_suffix = " / 100",
-          tabgroup = "Authenticity feelings") %>%
+          tabgroup = "Authenticity Feelings across countries") %>%
   add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
           filter = ~ country == "South Africa",
           title = "", title_tabset = "South Africa",
           x_label = "", y_label = therm_label,
           tooltip_suffix = " / 100",
-          tabgroup = "Authenticity feelings") %>%
+          tabgroup = "Authenticity Feelings across countries") %>%
   add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
           filter = ~ country == "Japan",
           title = "", title_tabset = "Japan",
           x_label = "", y_label = therm_label,
           tooltip_suffix = " / 100",
-          tabgroup = "Authenticity feelings")
+          tabgroup = "Authenticity Feelings across countries")
 
 authenticity_feelings %>% preview()
+
+authenticity_feelings_breakdown = create_content(data = q5_long, type = "boxplot") %>%
+  # By age group — 18-24
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "18-24",
+          title = "", title_tabset = "All Countries", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/18-24") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "18-24" & country == "Netherlands",
+          title = "", title_tabset = "Netherlands", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/18-24") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "18-24" & country == "Denmark",
+          title = "", title_tabset = "Denmark", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/18-24") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "18-24" & country == "USA",
+          title = "", title_tabset = "USA", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/18-24") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "18-24" & country == "Brazil",
+          title = "", title_tabset = "Brazil", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/18-24") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "18-24" & country == "South Africa",
+          title = "", title_tabset = "South Africa", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/18-24") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "18-24" & country == "Japan",
+          title = "", title_tabset = "Japan", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/18-24") %>%
+  # By age group — 25-34
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "25-34",
+          title = "", title_tabset = "All Countries", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/25-34") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "25-34" & country == "Netherlands",
+          title = "", title_tabset = "Netherlands", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/25-34") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "25-34" & country == "Denmark",
+          title = "", title_tabset = "Denmark", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/25-34") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "25-34" & country == "USA",
+          title = "", title_tabset = "USA", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/25-34") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "25-34" & country == "Brazil",
+          title = "", title_tabset = "Brazil", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/25-34") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "25-34" & country == "South Africa",
+          title = "", title_tabset = "South Africa", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/25-34") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "25-34" & country == "Japan",
+          title = "", title_tabset = "Japan", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/25-34") %>%
+  # By age group — 35-44
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "35-44",
+          title = "", title_tabset = "All Countries", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/35-44") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "35-44" & country == "Netherlands",
+          title = "", title_tabset = "Netherlands", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/35-44") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "35-44" & country == "Denmark",
+          title = "", title_tabset = "Denmark", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/35-44") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "35-44" & country == "USA",
+          title = "", title_tabset = "USA", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/35-44") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "35-44" & country == "Brazil",
+          title = "", title_tabset = "Brazil", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/35-44") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "35-44" & country == "South Africa",
+          title = "", title_tabset = "South Africa", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/35-44") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "35-44" & country == "Japan",
+          title = "", title_tabset = "Japan", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/35-44") %>%
+  # By age group — 45-54
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "45-54",
+          title = "", title_tabset = "All Countries", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/45-54") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "45-54" & country == "Netherlands",
+          title = "", title_tabset = "Netherlands", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/45-54") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "45-54" & country == "Denmark",
+          title = "", title_tabset = "Denmark", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/45-54") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "45-54" & country == "USA",
+          title = "", title_tabset = "USA", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/45-54") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "45-54" & country == "Brazil",
+          title = "", title_tabset = "Brazil", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/45-54") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "45-54" & country == "South Africa",
+          title = "", title_tabset = "South Africa", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/45-54") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "45-54" & country == "Japan",
+          title = "", title_tabset = "Japan", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/45-54") %>%
+  # By age group — 55-70
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "55-70",
+          title = "", title_tabset = "All Countries", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/55-70") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "55-70" & country == "Netherlands",
+          title = "", title_tabset = "Netherlands", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/55-70") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "55-70" & country == "Denmark",
+          title = "", title_tabset = "Denmark", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/55-70") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "55-70" & country == "USA",
+          title = "", title_tabset = "USA", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/55-70") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "55-70" & country == "Brazil",
+          title = "", title_tabset = "Brazil", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/55-70") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "55-70" & country == "South Africa",
+          title = "", title_tabset = "South Africa", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/55-70") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "55-70" & country == "Japan",
+          title = "", title_tabset = "Japan", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Age Group/55-70") %>%
+  # By gender — Female
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ gender == "Female",
+          title = "", title_tabset = "All Countries", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Gender/Female") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ gender == "Female" & country == "Netherlands",
+          title = "", title_tabset = "Netherlands", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Gender/Female") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ gender == "Female" & country == "Denmark",
+          title = "", title_tabset = "Denmark", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Gender/Female") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ gender == "Female" & country == "USA",
+          title = "", title_tabset = "USA", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Gender/Female") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ gender == "Female" & country == "Brazil",
+          title = "", title_tabset = "Brazil", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Gender/Female") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ gender == "Female" & country == "South Africa",
+          title = "", title_tabset = "South Africa", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Gender/Female") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ gender == "Female" & country == "Japan",
+          title = "", title_tabset = "Japan", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Gender/Female") %>%
+  # By gender — Male
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ gender == "Male",
+          title = "", title_tabset = "All Countries", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Gender/Male") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ gender == "Male" & country == "Netherlands",
+          title = "", title_tabset = "Netherlands", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Gender/Male") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ gender == "Male" & country == "Denmark",
+          title = "", title_tabset = "Denmark", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Gender/Male") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ gender == "Male" & country == "USA",
+          title = "", title_tabset = "USA", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Gender/Male") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ gender == "Male" & country == "Brazil",
+          title = "", title_tabset = "Brazil", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Gender/Male") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ gender == "Male" & country == "South Africa",
+          title = "", title_tabset = "South Africa", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Gender/Male") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ gender == "Male" & country == "Japan",
+          title = "", title_tabset = "Japan", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Gender/Male") %>%
+  # By education — Low
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "Low",
+          title = "", title_tabset = "All Countries", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/Low") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "Low" & country == "Netherlands",
+          title = "", title_tabset = "Netherlands", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/Low") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "Low" & country == "Denmark",
+          title = "", title_tabset = "Denmark", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/Low") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "Low" & country == "USA",
+          title = "", title_tabset = "USA", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/Low") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "Low" & country == "Brazil",
+          title = "", title_tabset = "Brazil", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/Low") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "Low" & country == "South Africa",
+          title = "", title_tabset = "South Africa", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/Low") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "Low" & country == "Japan",
+          title = "", title_tabset = "Japan", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/Low") %>%
+  # By education — Middle
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "Middle",
+          title = "", title_tabset = "All Countries", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/Middle") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "Middle" & country == "Netherlands",
+          title = "", title_tabset = "Netherlands", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/Middle") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "Middle" & country == "Denmark",
+          title = "", title_tabset = "Denmark", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/Middle") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "Middle" & country == "USA",
+          title = "", title_tabset = "USA", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/Middle") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "Middle" & country == "Brazil",
+          title = "", title_tabset = "Brazil", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/Middle") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "Middle" & country == "South Africa",
+          title = "", title_tabset = "South Africa", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/Middle") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "Middle" & country == "Japan",
+          title = "", title_tabset = "Japan", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/Middle") %>%
+  # By education — High
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "High",
+          title = "", title_tabset = "All Countries", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/High") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "High" & country == "Netherlands",
+          title = "", title_tabset = "Netherlands", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/High") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "High" & country == "Denmark",
+          title = "", title_tabset = "Denmark", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/High") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "High" & country == "USA",
+          title = "", title_tabset = "USA", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/High") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "High" & country == "Brazil",
+          title = "", title_tabset = "Brazil", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/High") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "High" & country == "South Africa",
+          title = "", title_tabset = "South Africa", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/High") %>%
+  add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ education == "High" & country == "Japan",
+          title = "", title_tabset = "Japan", x_label = "", y_label = therm_label, tooltip_suffix = " / 100",
+          tabgroup = "Authenticity Feelings among Different Subgroups/By Education/High")
+
+authenticity_feelings_breakdown %>% preview()
 ```
 
 ### Authenticity Rankings
@@ -627,7 +1013,7 @@ bump_viz = viz_timeline(
 ) %>%
   hc_yAxis(reversed = TRUE, min = 1, max = 5)
 
-authenticity_ranking_viz = create_content(data = authenticity_bump, 
+authenticity_ranking_viz = create_content(data = authenticity_bump,
                                           type = "timeline") %>%   add_hc(bump_viz)
 
 authenticity_ranking_viz %>% preview
@@ -656,7 +1042,7 @@ AINewsEngagement = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Overall", tabgroup = "AI Journalism Attitudes/Willingness to Engage") %>%
+          title_tabset = "All Countries", tabgroup = "Willingness to Engage across countries") %>%
   add_viz(x_vars = q6_vars,
           x_var_labels = q6_labels,
           stack_order = q6_order,
@@ -665,7 +1051,7 @@ AINewsEngagement = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Netherlands", tabgroup = "AI Journalism Attitudes/Willingness to Engage") %>%
+          title_tabset = "Netherlands", tabgroup = "Willingness to Engage across countries") %>%
   add_viz(x_vars = q6_vars,
           x_var_labels = q6_labels,
           stack_order = q6_order,
@@ -674,7 +1060,7 @@ AINewsEngagement = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Denmark", tabgroup = "AI Journalism Attitudes/Willingness to Engage") %>%
+          title_tabset = "Denmark", tabgroup = "Willingness to Engage across countries") %>%
   add_viz(x_vars = q6_vars,
           x_var_labels = q6_labels,
           stack_order = q6_order,
@@ -683,7 +1069,7 @@ AINewsEngagement = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "USA", tabgroup = "AI Journalism Attitudes/Willingness to Engage") %>%
+          title_tabset = "USA", tabgroup = "Willingness to Engage across countries") %>%
   add_viz(x_vars = q6_vars,
           x_var_labels = q6_labels,
           stack_order = q6_order,
@@ -692,7 +1078,7 @@ AINewsEngagement = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Brazil", tabgroup = "AI Journalism Attitudes/Willingness to Engage") %>%
+          title_tabset = "Brazil", tabgroup = "Willingness to Engage across countries") %>%
   add_viz(x_vars = q6_vars,
           x_var_labels = q6_labels,
           stack_order = q6_order,
@@ -701,7 +1087,7 @@ AINewsEngagement = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "South Africa", tabgroup = "AI Journalism Attitudes/Willingness to Engage") %>%
+          title_tabset = "South Africa", tabgroup = "Willingness to Engage across countries") %>%
   add_viz(x_vars = q6_vars,
           x_var_labels = q6_labels,
           stack_order = q6_order,
@@ -710,7 +1096,12 @@ AINewsEngagement = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Japan", tabgroup = "AI Journalism Attitudes/Willingness to Engage")
+          title_tabset = "Japan", tabgroup = "Willingness to Engage across countries")
+
+AINewsEngagement_breakdown = add_stack_subgroups(
+  create_content(data = data, type = "stackedbar"),
+  x_vars = q6_vars, x_labels = q6_labels, stack_order = q6_order, palette = q6_palette,
+  tab_prefix = "Willingness to Engage among Different Subgroups")
 
 AINewsEngagement %>% preview
 ```
@@ -724,12 +1115,12 @@ q9_vars <- c("Q9_engaging", "Q9_providing_relevant_news",
              "Q9_missing_important_news",
              "Q9_spreading_misinfo")
 
-q9_labels = c(Q9_engaging                  = "… helps me engage with news content",
-              Q9_providing_relevant_news    = "… gives me more relevant news",
-              Q9_improving_user_experience  = "… improves my user experience",
-              Q9_risking_privacy            = "… risks my data privacy",
-              Q9_missing_important_news     = "… makes me miss out on important news",
-              Q9_spreading_misinfo          = "… leads to the spread of false and misleading information")
+q9_labels = c(Q9_engaging                  = "Hyperpersonalisation helps me engage with news content",
+              Q9_providing_relevant_news    = "Hyperpersonalisation gives me more relevant news",
+              Q9_improving_user_experience  = "Hyperpersonalisation improves my user experience",
+              Q9_risking_privacy            = "Hyperpersonalisation risks my data privacy",
+              Q9_missing_important_news     = "Hyperpersonalisation makes me miss out on important news",
+              Q9_spreading_misinfo          = "Hyperpersonalisation leads to the spread of false and misleading information")
 
 q9_order   = c("Strongly agree", "Agree", "Neither agree, nor disagree",
                "Disagree", "Strongly disagree")
@@ -743,7 +1134,7 @@ Hyperpersonalisation = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Overall", tabgroup = "AI Journalism Attitudes/Attitudes towards Hyperpersonalisation") %>%
+          title_tabset = "All Countries", tabgroup = "Attitudes towards Hyperpersonalisation across countries") %>%
   add_viz(x_vars = q9_vars,
           x_var_labels = q9_labels,
           stack_order = q9_order,
@@ -752,7 +1143,7 @@ Hyperpersonalisation = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Netherlands", tabgroup = "AI Journalism Attitudes/Attitudes towards Hyperpersonalisation") %>%
+          title_tabset = "Netherlands", tabgroup = "Attitudes towards Hyperpersonalisation across countries") %>%
   add_viz(x_vars = q9_vars,
           x_var_labels = q9_labels,
           stack_order = q9_order,
@@ -761,7 +1152,7 @@ Hyperpersonalisation = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Denmark", tabgroup = "AI Journalism Attitudes/Attitudes towards Hyperpersonalisation") %>%
+          title_tabset = "Denmark", tabgroup = "Attitudes towards Hyperpersonalisation across countries") %>%
   add_viz(x_vars = q9_vars,
           x_var_labels = q9_labels,
           stack_order = q9_order,
@@ -770,7 +1161,7 @@ Hyperpersonalisation = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "USA", tabgroup = "AI Journalism Attitudes/Attitudes towards Hyperpersonalisation") %>%
+          title_tabset = "USA", tabgroup = "Attitudes towards Hyperpersonalisation across countries") %>%
   add_viz(x_vars = q9_vars,
           x_var_labels = q9_labels,
           stack_order = q9_order,
@@ -779,7 +1170,7 @@ Hyperpersonalisation = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Brazil", tabgroup = "AI Journalism Attitudes/Attitudes towards Hyperpersonalisation") %>%
+          title_tabset = "Brazil", tabgroup = "Attitudes towards Hyperpersonalisation across countries") %>%
   add_viz(x_vars = q9_vars,
           x_var_labels = q9_labels,
           stack_order = q9_order,
@@ -788,7 +1179,7 @@ Hyperpersonalisation = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "South Africa", tabgroup = "AI Journalism Attitudes/Attitudes towards Hyperpersonalisation") %>%
+          title_tabset = "South Africa", tabgroup = "Attitudes towards Hyperpersonalisation across countries") %>%
   add_viz(x_vars = q9_vars,
           x_var_labels = q9_labels,
           stack_order = q9_order,
@@ -797,7 +1188,12 @@ Hyperpersonalisation = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Japan", tabgroup = "AI Journalism Attitudes/Attitudes towards Hyperpersonalisation")
+          title_tabset = "Japan", tabgroup = "Attitudes towards Hyperpersonalisation across countries")
+
+Hyperpersonalisation_breakdown = add_stack_subgroups(
+  create_content(data = data, type = "stackedbar"),
+  x_vars = q9_vars, x_labels = q9_labels, stack_order = q9_order, palette = q9_palette,
+  tab_prefix = "Attitudes towards Hyperpersonalisation among Different Subgroups")
 
 Hyperpersonalisation %>% preview
 ```
@@ -825,7 +1221,7 @@ Credibility = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Overall", tabgroup = "AI Journalism Attitudes/Aspects influencing Credibility Judgements") %>%
+          title_tabset = "All Countries", tabgroup = "Aspects influencing Credibility Judgements across countries") %>%
   add_viz(x_vars = q8_vars,
           x_var_labels = q8_labels,
           stack_order = q8_order,
@@ -834,7 +1230,7 @@ Credibility = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Netherlands", tabgroup = "AI Journalism Attitudes/Aspects influencing Credibility Judgements") %>%
+          title_tabset = "Netherlands", tabgroup = "Aspects influencing Credibility Judgements across countries") %>%
   add_viz(x_vars = q8_vars,
           x_var_labels = q8_labels,
           stack_order = q8_order,
@@ -843,7 +1239,7 @@ Credibility = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Denmark", tabgroup = "AI Journalism Attitudes/Aspects influencing Credibility Judgements") %>%
+          title_tabset = "Denmark", tabgroup = "Aspects influencing Credibility Judgements across countries") %>%
   add_viz(x_vars = q8_vars,
           x_var_labels = q8_labels,
           stack_order = q8_order,
@@ -852,7 +1248,7 @@ Credibility = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "USA", tabgroup = "AI Journalism Attitudes/Aspects influencing Credibility Judgements") %>%
+          title_tabset = "USA", tabgroup = "Aspects influencing Credibility Judgements across countries") %>%
   add_viz(x_vars = q8_vars,
           x_var_labels = q8_labels,
           stack_order = q8_order,
@@ -861,7 +1257,7 @@ Credibility = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Brazil", tabgroup = "AI Journalism Attitudes/Aspects influencing Credibility Judgements") %>%
+          title_tabset = "Brazil", tabgroup = "Aspects influencing Credibility Judgements across countries") %>%
   add_viz(x_vars = q8_vars,
           x_var_labels = q8_labels,
           stack_order = q8_order,
@@ -870,7 +1266,7 @@ Credibility = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "South Africa", tabgroup = "AI Journalism Attitudes/Aspects influencing Credibility Judgements") %>%
+          title_tabset = "South Africa", tabgroup = "Aspects influencing Credibility Judgements across countries") %>%
   add_viz(x_vars = q8_vars,
           x_var_labels = q8_labels,
           stack_order = q8_order,
@@ -879,7 +1275,12 @@ Credibility = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Japan", tabgroup = "AI Journalism Attitudes/Aspects influencing Credibility Judgements")
+          title_tabset = "Japan", tabgroup = "Aspects influencing Credibility Judgements across countries")
+
+Credibility_breakdown = add_stack_subgroups(
+  create_content(data = data, type = "stackedbar"),
+  x_vars = q8_vars, x_labels = q8_labels, stack_order = q8_order, palette = q8_palette,
+  tab_prefix = "Aspects influencing Credibility Judgements among Different Subgroups")
 
 Credibility %>% preview
 ```
@@ -887,7 +1288,216 @@ Credibility %>% preview
 ### Journalistic principles
 
 ```{r}
-#test
+q7_item_order = function(df) {
+  df %>%
+    group_by(item) %>%
+    summarise(pct = mean(mentioned), .groups = "drop") %>%
+    arrange(desc(pct)) %>%
+    pull(item)
+}
+
+q7_colors = c(
+  "Transparency about AI use"        = "#4E79A7",
+  "Protecting intellectual property" = "#F28E2B",
+  "Human responsibility for content" = "#E15759",
+  "Avoiding discrimination"          = "#76B7B2",
+  "Preventing job replacement"       = "#59A14F",
+  "Maintaining content quality"      = "#EDC948",
+  "Protecting user privacy"          = "#B07AA1",
+  "Political neutrality"             = "#FF9DA7",
+  "Accessibility of content"         = "#9C755F",
+  "Diversity of perspectives"        = "#BAB0AC",
+  "Environmental sustainability"     = "#499894"
+)
+
+q7_long = data %>%
+  select(country, age_cat, gender, education, starts_with("Q7_")) %>%
+  pivot_longer(-c(country, age_cat, gender, education), names_to = "item", values_to = "mentioned") %>%
+  mutate(mentioned = ifelse(mentioned == "Mentioned", 1, 0),
+         mentioned = as.numeric(mentioned) * 100,
+    item = recode(item,
+      "Q7_transparency"         = "Transparency about AI use",
+      "Q7_intellectual_property" = "Protecting intellectual property",
+      "Q7_human_responsibility"  = "Human responsibility for content",
+      "Q7_discrimination"        = "Avoiding discrimination",
+      "Q7_job_replacement"       = "Preventing job replacement",
+      "Q7_quality"               = "Maintaining content quality",
+      "Q7_privacy"               = "Protecting user privacy",
+      "Q7_political_neutrality"  = "Political neutrality",
+      "Q7_accessibility"         = "Accessibility of content",
+      "Q7_diversity"             = "Diversity of perspectives",
+      "Q7_environment"           = "Environmental sustainability",
+      "Q7_dont_know"             = "Don't know"
+    )
+  ) %>%
+  filter(item != "Don't know")
+
+Q7_mentions = create_content(data = q7_long, type = "bar") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
+          x_order = q7_item_order(q7_long),
+          color_palette = q7_colors[q7_item_order(q7_long)],
+          horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
+          title = "Journalistic Principles", title_tabset = "All Countries",
+          tabgroup = "Journalistic Principles across countries") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
+          x_order = q7_item_order(q7_long %>% filter(country == "Netherlands")),
+          color_palette = q7_colors[q7_item_order(q7_long %>% filter(country == "Netherlands"))],
+          filter = ~ country == "Netherlands",
+          horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
+          title = "Journalistic Principles", title_tabset = "Netherlands",
+          tabgroup = "Journalistic Principles across countries") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
+          x_order = q7_item_order(q7_long %>% filter(country == "Denmark")),
+          color_palette = q7_colors[q7_item_order(q7_long %>% filter(country == "Denmark"))],
+          filter = ~ country == "Denmark",
+          horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
+          title = "Journalistic Principles", title_tabset = "Denmark",
+          tabgroup = "Journalistic Principles across countries") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
+          x_order = q7_item_order(q7_long %>% filter(country == "USA")),
+          color_palette = q7_colors[q7_item_order(q7_long %>% filter(country == "USA"))],
+          filter = ~ country == "USA",
+          horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
+          title = "Journalistic Principles", title_tabset = "USA",
+          tabgroup = "Journalistic Principles across countries") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
+          x_order = q7_item_order(q7_long %>% filter(country == "Brazil")),
+          color_palette = q7_colors[q7_item_order(q7_long %>% filter(country == "Brazil"))],
+          filter = ~ country == "Brazil",
+          horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
+          title = "Journalistic Principles", title_tabset = "Brazil",
+          tabgroup = "Journalistic Principles across countries") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
+          x_order = q7_item_order(q7_long %>% filter(country == "South Africa")),
+          color_palette = q7_colors[q7_item_order(q7_long %>% filter(country == "South Africa"))],
+          filter = ~ country == "South Africa",
+          horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
+          title = "Journalistic Principles", title_tabset = "South Africa",
+          tabgroup = "Journalistic Principles across countries") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
+          x_order = q7_item_order(q7_long %>% filter(country == "Japan")),
+          color_palette = q7_colors[q7_item_order(q7_long %>% filter(country == "Japan"))],
+          filter = ~ country == "Japan",
+          horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
+          title = "Journalistic Principles", title_tabset = "Japan",
+          tabgroup = "Journalistic Principles across countries")
+
+Q7_mentions_breakdown = create_content(data = q7_long, type = "bar") %>%
+  # By age group
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "age_cat",
+          x_order = q7_item_order(q7_long), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "All Countries", tabgroup = "Journalistic Principles among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "age_cat",
+          filter = ~ country == "Netherlands",
+          x_order = q7_item_order(q7_long %>% filter(country == "Netherlands")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Netherlands", tabgroup = "Journalistic Principles among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "age_cat",
+          filter = ~ country == "Denmark",
+          x_order = q7_item_order(q7_long %>% filter(country == "Denmark")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Denmark", tabgroup = "Journalistic Principles among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "age_cat",
+          filter = ~ country == "USA",
+          x_order = q7_item_order(q7_long %>% filter(country == "USA")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "USA", tabgroup = "Journalistic Principles among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "age_cat",
+          filter = ~ country == "Brazil",
+          x_order = q7_item_order(q7_long %>% filter(country == "Brazil")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Brazil", tabgroup = "Journalistic Principles among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "age_cat",
+          filter = ~ country == "South Africa",
+          x_order = q7_item_order(q7_long %>% filter(country == "South Africa")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "South Africa", tabgroup = "Journalistic Principles among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "age_cat",
+          filter = ~ country == "Japan",
+          x_order = q7_item_order(q7_long %>% filter(country == "Japan")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Japan", tabgroup = "Journalistic Principles among Different Subgroups/By Age Group") %>%
+  # By gender
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "gender",
+          filter = ~ gender != "Other",
+          x_order = q7_item_order(q7_long), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "All Countries", tabgroup = "Journalistic Principles among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "gender",
+          filter = ~ country == "Netherlands" & gender != "Other",
+          x_order = q7_item_order(q7_long %>% filter(country == "Netherlands")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Netherlands", tabgroup = "Journalistic Principles among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "gender",
+          filter = ~ country == "Denmark" & gender != "Other",
+          x_order = q7_item_order(q7_long %>% filter(country == "Denmark")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Denmark", tabgroup = "Journalistic Principles among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "gender",
+          filter = ~ country == "USA" & gender != "Other",
+          x_order = q7_item_order(q7_long %>% filter(country == "USA")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "USA", tabgroup = "Journalistic Principles among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "gender",
+          filter = ~ country == "Brazil" & gender != "Other",
+          x_order = q7_item_order(q7_long %>% filter(country == "Brazil")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Brazil", tabgroup = "Journalistic Principles among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "gender",
+          filter = ~ country == "South Africa" & gender != "Other",
+          x_order = q7_item_order(q7_long %>% filter(country == "South Africa")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "South Africa", tabgroup = "Journalistic Principles among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "gender",
+          filter = ~ country == "Japan" & gender != "Other",
+          x_order = q7_item_order(q7_long %>% filter(country == "Japan")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Japan", tabgroup = "Journalistic Principles among Different Subgroups/By Gender") %>%
+  # By education
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "education",
+          x_order = q7_item_order(q7_long), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "All Countries", tabgroup = "Journalistic Principles among Different Subgroups/By Education") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "education",
+          filter = ~ country == "Netherlands",
+          x_order = q7_item_order(q7_long %>% filter(country == "Netherlands")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Netherlands", tabgroup = "Journalistic Principles among Different Subgroups/By Education") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "education",
+          filter = ~ country == "Denmark",
+          x_order = q7_item_order(q7_long %>% filter(country == "Denmark")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Denmark", tabgroup = "Journalistic Principles among Different Subgroups/By Education") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "education",
+          filter = ~ country == "USA",
+          x_order = q7_item_order(q7_long %>% filter(country == "USA")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "USA", tabgroup = "Journalistic Principles among Different Subgroups/By Education") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "education",
+          filter = ~ country == "Brazil",
+          x_order = q7_item_order(q7_long %>% filter(country == "Brazil")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Brazil", tabgroup = "Journalistic Principles among Different Subgroups/By Education") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "education",
+          filter = ~ country == "South Africa",
+          x_order = q7_item_order(q7_long %>% filter(country == "South Africa")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "South Africa", tabgroup = "Journalistic Principles among Different Subgroups/By Education") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "education",
+          filter = ~ country == "Japan",
+          x_order = q7_item_order(q7_long %>% filter(country == "Japan")), horizontal = TRUE,
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Japan", tabgroup = "Journalistic Principles among Different Subgroups/By Education")
+
+Q7_mentions %>% preview
 ```
 
 ## Regulatory Preferences
@@ -920,7 +1530,7 @@ RegulatoryModels = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Overall", tabgroup = "Regulatory Preferences/Attitudes towards Regulation") %>%
+          title_tabset = "All Countries", tabgroup = "Attitudes towards Regulation across countries") %>%
   add_viz(x_vars = q10_vars,
           x_var_labels = q10_labels,
           stack_order = q10_order,
@@ -929,7 +1539,7 @@ RegulatoryModels = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Netherlands", tabgroup = "Regulatory Preferences/Attitudes towards Regulation") %>%
+          title_tabset = "Netherlands", tabgroup = "Attitudes towards Regulation across countries") %>%
   add_viz(x_vars = q10_vars,
           x_var_labels = q10_labels,
           stack_order = q10_order,
@@ -938,7 +1548,7 @@ RegulatoryModels = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Denmark", tabgroup = "Regulatory Preferences/Attitudes towards Regulation") %>%
+          title_tabset = "Denmark", tabgroup = "Attitudes towards Regulation across countries") %>%
   add_viz(x_vars = q10_vars,
           x_var_labels = q10_labels,
           stack_order = q10_order,
@@ -947,7 +1557,7 @@ RegulatoryModels = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "USA", tabgroup = "Regulatory Preferences/Attitudes towards Regulation") %>%
+          title_tabset = "USA", tabgroup = "Attitudes towards Regulation across countries") %>%
   add_viz(x_vars = q10_vars,
           x_var_labels = q10_labels,
           stack_order = q10_order,
@@ -956,7 +1566,7 @@ RegulatoryModels = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Brazil", tabgroup = "Regulatory Preferences/Attitudes towards Regulation") %>%
+          title_tabset = "Brazil", tabgroup = "Attitudes towards Regulation across countries") %>%
   add_viz(x_vars = q10_vars,
           x_var_labels = q10_labels,
           stack_order = q10_order,
@@ -965,7 +1575,7 @@ RegulatoryModels = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "South Africa", tabgroup = "Regulatory Preferences/Attitudes towards Regulation") %>%
+          title_tabset = "South Africa", tabgroup = "Attitudes towards Regulation across countries") %>%
   add_viz(x_vars = q10_vars,
           x_var_labels = q10_labels,
           stack_order = q10_order,
@@ -974,7 +1584,12 @@ RegulatoryModels = create_content(data = data, type = "stackedbar") %>%
           stacked_type = "percent",
           x_label = "", y_label = "Percent (%)",
           tooltip_suffix = "%", title = "",
-          title_tabset = "Japan", tabgroup = "Regulatory Preferences/Attitudes towards Regulation")
+          title_tabset = "Japan", tabgroup = "Attitudes towards Regulation across countries")
+
+RegulatoryModels_breakdown = add_stack_subgroups(
+  create_content(data = data, type = "stackedbar"),
+  x_vars = q10_vars, x_labels = q10_labels, stack_order = q10_order, palette = q10_palette,
+  tab_prefix = "Attitudes towards Regulation among Different Subgroups")
 
 RegulatoryModels %>% preview
 ```
@@ -1001,8 +1616,8 @@ item_order = function(df) {
 }
 
 q11_long = data %>%
-  select(country, starts_with("Q11_")) %>%
-  pivot_longer(-country, names_to = "item", values_to = "mentioned") %>%
+  select(country, age_cat, gender, education, starts_with("Q11_")) %>%
+  pivot_longer(-c(country, age_cat, gender, education), names_to = "item", values_to = "mentioned") %>%
   mutate(
     item = recode(item,
       "Q11_economic_wellbeing"                          = "Economic wellbeing",
@@ -1021,49 +1636,158 @@ Q11_mentions = create_content(data = q11_long, type = "bar") %>%
           x_order = item_order(q11_long),
           color_palette = q11_colors[item_order(q11_long)],
           x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
-          title = "Regulatory Priorities", title_tabset = "Overall",
-          tabgroup = "Regulatory Preferences/Regulatory Priorities") %>%
+          title = "Regulatory Priorities", title_tabset = "All Countries",
+          tabgroup = "Regulatory Priorities across countries") %>%
   add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
           x_order = item_order(q11_long %>% filter(country == "Netherlands")),
           color_palette = q11_colors[item_order(q11_long %>% filter(country == "Netherlands"))],
           filter = ~ country == "Netherlands",
           x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
-          title = "Regulatory Priorities ", title_tabset = "Netherlands",
-          tabgroup = "Regulatory Preferences/Regulatory Priorities") %>%
+          title = "Regulatory Priorities", title_tabset = "Netherlands",
+          tabgroup = "Regulatory Priorities across countries") %>%
   add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
           x_order = item_order(q11_long %>% filter(country == "Denmark")),
-          color_palette = q11_colors[item_order(q11_long %>% filter(country == "Denmark"))],          filter = ~ country == "Denmark",
+          color_palette = q11_colors[item_order(q11_long %>% filter(country == "Denmark"))],
+          filter = ~ country == "Denmark",
           x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
           title = "Regulatory Priorities", title_tabset = "Denmark",
-          tabgroup = "Regulatory Preferences/Regulatory Priorities") %>%
+          tabgroup = "Regulatory Priorities across countries") %>%
   add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
           x_order = item_order(q11_long %>% filter(country == "USA")),
           color_palette = q11_colors[item_order(q11_long %>% filter(country == "USA"))],
           filter = ~ country == "USA",
           x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
           title = "Regulatory Priorities", title_tabset = "USA",
-          tabgroup = "Regulatory Preferences/Regulatory Priorities") %>%
+          tabgroup = "Regulatory Priorities across countries") %>%
   add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
           x_order = item_order(q11_long %>% filter(country == "Brazil")),
           color_palette = q11_colors[item_order(q11_long %>% filter(country == "Brazil"))],
           filter = ~ country == "Brazil",
           x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
           title = "Regulatory Priorities", title_tabset = "Brazil",
-          tabgroup = "Regulatory Preferences/Regulatory Priorities") %>%
+          tabgroup = "Regulatory Priorities across countries") %>%
   add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
           x_order = item_order(q11_long %>% filter(country == "South Africa")),
           color_palette = q11_colors[item_order(q11_long %>% filter(country == "South Africa"))],
           filter = ~ country == "South Africa",
           x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
           title = "Regulatory Priorities", title_tabset = "South Africa",
-          tabgroup = "Regulatory Preferences/Regulatory Priorities") %>%
+          tabgroup = "Regulatory Priorities across countries") %>%
   add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
           x_order = item_order(q11_long %>% filter(country == "Japan")),
           color_palette = q11_colors[item_order(q11_long %>% filter(country == "Japan"))],
           filter = ~ country == "Japan",
           x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
           title = "Regulatory Priorities", title_tabset = "Japan",
-          tabgroup = "Regulatory Preferences/Regulatory Priorities")
+          tabgroup = "Regulatory Priorities across countries")
+
+Q11_mentions_breakdown = create_content(data = q11_long, type = "bar") %>%
+  # By age group
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "age_cat",
+          x_order = item_order(q11_long),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "All Countries", tabgroup = "Regulatory Priorities among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "age_cat",
+          filter = ~ country == "Netherlands",
+          x_order = item_order(q11_long %>% filter(country == "Netherlands")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Netherlands", tabgroup = "Regulatory Priorities among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "age_cat",
+          filter = ~ country == "Denmark",
+          x_order = item_order(q11_long %>% filter(country == "Denmark")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Denmark", tabgroup = "Regulatory Priorities among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "age_cat",
+          filter = ~ country == "USA",
+          x_order = item_order(q11_long %>% filter(country == "USA")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "USA", tabgroup = "Regulatory Priorities among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "age_cat",
+          filter = ~ country == "Brazil",
+          x_order = item_order(q11_long %>% filter(country == "Brazil")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Brazil", tabgroup = "Regulatory Priorities among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "age_cat",
+          filter = ~ country == "South Africa",
+          x_order = item_order(q11_long %>% filter(country == "South Africa")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "South Africa", tabgroup = "Regulatory Priorities among Different Subgroups/By Age Group") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "age_cat",
+          filter = ~ country == "Japan",
+          x_order = item_order(q11_long %>% filter(country == "Japan")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Japan", tabgroup = "Regulatory Priorities among Different Subgroups/By Age Group") %>%
+  # By gender
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "gender",
+          filter = ~ gender != "Other",
+          x_order = item_order(q11_long),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "All Countries", tabgroup = "Regulatory Priorities among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "gender",
+          filter = ~ country == "Netherlands" & gender != "Other",
+          x_order = item_order(q11_long %>% filter(country == "Netherlands")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Netherlands", tabgroup = "Regulatory Priorities among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "gender",
+          filter = ~ country == "Denmark" & gender != "Other",
+          x_order = item_order(q11_long %>% filter(country == "Denmark")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Denmark", tabgroup = "Regulatory Priorities among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "gender",
+          filter = ~ country == "USA" & gender != "Other",
+          x_order = item_order(q11_long %>% filter(country == "USA")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "USA", tabgroup = "Regulatory Priorities among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "gender",
+          filter = ~ country == "Brazil" & gender != "Other",
+          x_order = item_order(q11_long %>% filter(country == "Brazil")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Brazil", tabgroup = "Regulatory Priorities among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "gender",
+          filter = ~ country == "South Africa" & gender != "Other",
+          x_order = item_order(q11_long %>% filter(country == "South Africa")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "South Africa", tabgroup = "Regulatory Priorities among Different Subgroups/By Gender") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "gender",
+          filter = ~ country == "Japan" & gender != "Other",
+          x_order = item_order(q11_long %>% filter(country == "Japan")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Japan", tabgroup = "Regulatory Priorities among Different Subgroups/By Gender") %>%
+  # By education
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "education",
+          x_order = item_order(q11_long),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "All Countries", tabgroup = "Regulatory Priorities among Different Subgroups/By Education") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "education",
+          filter = ~ country == "Netherlands",
+          x_order = item_order(q11_long %>% filter(country == "Netherlands")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Netherlands", tabgroup = "Regulatory Priorities among Different Subgroups/By Education") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "education",
+          filter = ~ country == "Denmark",
+          x_order = item_order(q11_long %>% filter(country == "Denmark")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Denmark", tabgroup = "Regulatory Priorities among Different Subgroups/By Education") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "education",
+          filter = ~ country == "USA",
+          x_order = item_order(q11_long %>% filter(country == "USA")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "USA", tabgroup = "Regulatory Priorities among Different Subgroups/By Education") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "education",
+          filter = ~ country == "Brazil",
+          x_order = item_order(q11_long %>% filter(country == "Brazil")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Brazil", tabgroup = "Regulatory Priorities among Different Subgroups/By Education") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "education",
+          filter = ~ country == "South Africa",
+          x_order = item_order(q11_long %>% filter(country == "South Africa")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "South Africa", tabgroup = "Regulatory Priorities among Different Subgroups/By Education") %>%
+  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean", group_var = "education",
+          filter = ~ country == "Japan",
+          x_order = item_order(q11_long %>% filter(country == "Japan")),
+          x_label = "", y_label = "% mentioned", tooltip_suffix = "%", title = "",
+          title_tabset = "Japan", tabgroup = "Regulatory Priorities among Different Subgroups/By Education")
 
 Q11_mentions %>% preview
 ```
@@ -1076,41 +1800,65 @@ page_genai = create_page("GenAI use", data) %>%
   add_content(GenAIuse) %>%
   add_content(GenAIuse_breakdown)
 
-page_trust = create_page("Trust", data) %>%
-  add_text('To measure this, we asked respondents: *"On a scale from 0 to 10, where 0 means "no trust at all" and 10 means "complete trust", how much do you trust [the news media in your country? / ChatGPT]"*') %>%
+page_news_trust = create_page("Trust in News Media", data) %>%
+  add_text('To measure this, we asked respondents: *"On a scale from 0 to 10, where 0 means "no trust at all" and 10 means "complete trust", how much do you trust the news media in your country?"*') %>%
   add_content(NewsTrust) %>%
+  add_content(NewsTrust_breakdown)
+
+page_chatgpt_trust = create_page("Trust in ChatGPT", data) %>%
+  add_text('To measure this, we asked respondents: *"On a scale from 0 to 10, where 0 means "no trust at all" and 10 means "complete trust", how much do you trust ChatGPT?"*') %>%
   add_content(ChatGPTTrust) %>%
-  add_content(NewsTrust_breakdown) %>%
   add_content(ChatGPTTrust_breakdown)
 
-#page_chatgpt_trust = create_page("Trust in ChatGPT", data) %>%
-#  add_text("We measured this by asking ...") %>%
-#  add_content(ChatGPTTrust)
+page_social_media_trust = create_page("Trust in Social Media", data) %>%
+  add_text('To measure this, we asked respondents: *"On a scale from 0 to 10, where 0 means "no trust at all" and 10 means "complete trust", how much do you trust social media?"*') %>%
+  add_content(SocialMediaTrust) %>%
+  add_content(SocialMediaTrust_breakdown)
 
-page_authenticity_feelings = create_page("Authenticity Feelings", q5_long) %>%
+page_authenticity_feelings = create_page("Authenticity Feelings") %>%
   add_text('To measure this, we asked respondents: *"How do you believe the use of AI to help create journalistic content, will affect your ability to do the following?"*') %>%
-  add_content(authenticity_feelings)
+  add_content(authenticity_feelings) %>%
+  add_content(authenticity_feelings_breakdown)
 
 page_authenticity_rankings = create_page("Authenticity Rankings") %>%
   add_text('To measure this, we asked respondents: *"What do you consider authentic journalistic content?  Please rank the following from 1 to 5, where 1 is most authentic and 5 is least authentic."*') %>%
   add_content(authenticity_ranking_viz)
 
-page_ai_journalism_attitudes = create_page("AI Journalism Attitudes", data) %>%
-  add_text('To measure **Willingness to Engage**, we asked respondents: *"If you know from the beginning that journalistic content is generated with the help of AI, how willing are you to ..."*\n\n\n\nTo measure **Attitudes towards Hyperpersonalisation**, we asked respondents: *"Hyper-personalization uses generative AI to tailor news to your preferences and present it in flexible formatsways. For example, generative AI can change turn a news article into an audio clip or a summary, making it more engaging and relevant for you. To what extent do you agree with the following statements?"*\n\n\n\nTo measure **Aspects influencing Credibility Judgements**, we asked respondents: *"When you read an article that may be written by generative AI, how does each of the following factors influence how much you believe the content? "*') %>%
-  add_content(AINewsEngagement) %>%
-  add_content(Hyperpersonalisation) %>% 
-  add_content(Credibility)
+page_journalistic_principles = create_page("Journalistic Principles") %>%
+  add_text('To measure this, we asked respondents: *"Which principles do you think should guide the use of AI in journalism? Choose your top three."*') %>%
+  add_content(Q7_mentions) %>%
+  add_content(Q7_mentions_breakdown)
 
-page_regulatory = create_page("Regulatory Preferences") %>%
-  add_text('To measure **Regulatory Priorities**, we asked respondents: *"Which aspects of your life should AI regulation protect? Choose your top three aspects."*\n\n\n\nTo measure **Attitudes towards Regulation**, we asked respondents: *"To what extent do you agree with the following statements regarding AI regulation."*') %>%
+page_willingness_to_engage = create_page("Willingness to Engage") %>%
+  add_text('To measure this, we asked respondents: *"If you know from the beginning that journalistic content is generated with the help of AI, how willing are you to ..."*') %>%
+  add_content(AINewsEngagement) %>%
+  add_content(AINewsEngagement_breakdown)
+
+page_hyperpersonalisation = create_page("Attitudes towards Hyperpersonalisation") %>%
+  add_text('To measure this, we asked respondents: *"Hyper-personalization uses generative AI to tailor news to your preferences and present it in flexible formatsways. For example, generative AI can change turn a news article into an audio clip or a summary, making it more engaging and relevant for you. To what extent do you agree with the following statements?"*') %>%
+  add_content(Hyperpersonalisation) %>%
+  add_content(Hyperpersonalisation_breakdown)
+
+page_credibility = create_page("Aspects influencing Credibility Judgements") %>%
+  add_text('To measure this, we asked respondents: *"When you read an article that may be written by generative AI, how does each of the following factors influence how much you believe the content?"*') %>%
+  add_content(Credibility) %>%
+  add_content(Credibility_breakdown)
+
+page_regulatory_priorities = create_page("Regulatory Priorities") %>%
+  add_text('To measure this, we asked respondents: *"Which aspects of your life should AI regulation protect? Choose your top three aspects."*') %>%
   add_content(Q11_mentions) %>%
-  add_content(RegulatoryModels)
+  add_content(Q11_mentions_breakdown)
+
+page_regulatory_attitudes = create_page("Attitudes towards Regulation") %>%
+  add_text('To measure this, we asked respondents: *"To what extent do you agree with the following statements regarding AI regulation."*') %>%
+  add_content(RegulatoryModels) %>%
+  add_content(RegulatoryModels_breakdown)
 ```
 
 ```{r}
 background_menu = navbar_menu(
   text = "Background variables",
-  pages = c("GenAI use", "Trust")
+  pages = c("GenAI use", "Trust in News Media", "Trust in ChatGPT", "Trust in Social Media")
 )
 
 authenticity_menu = navbar_menu(
@@ -1118,19 +1866,33 @@ authenticity_menu = navbar_menu(
   pages = c("Authenticity Feelings", "Authenticity Rankings")
 )
 
+ai_attitudes_menu = navbar_menu(
+  text = "AI Journalism Attitudes",
+  pages = c("Journalistic Principles", "Willingness to Engage",
+            "Attitudes towards Hyperpersonalisation",
+            "Aspects influencing Credibility Judgements")
+)
+
+regulatory_menu = navbar_menu(
+  text = "Regulatory Preferences",
+  pages = c("Regulatory Priorities", "Attitudes towards Regulation")
+)
+
 
 AIJournalismDashboard = create_dashboard(
   title = "AI & Journalism Explorer",
   theme = "flatly",
-  navbar_sections = list(background_menu, authenticity_menu),
+  custom_css = "custom.css",
+  navbar_sections = list(background_menu, authenticity_menu, ai_attitudes_menu, regulatory_menu),
   page_navigation = TRUE,
   pagination_position = "bottom"
 ) %>%
-  add_pages(home, 
-            page_genai, page_trust,
+  add_pages(home,
+            page_genai, page_news_trust, page_chatgpt_trust, page_social_media_trust,
             page_authenticity_feelings, page_authenticity_rankings,
-            page_ai_journalism_attitudes,
-            page_regulatory)
+            page_journalistic_principles, page_willingness_to_engage,
+            page_hyperpersonalisation, page_credibility,
+            page_regulatory_priorities, page_regulatory_attitudes)
 ```
 
 ## Inspect
@@ -1142,7 +1904,7 @@ generate_dashboard(AIJournalismDashboard, render = TRUE)
 ## Publish
 
 ```{r}
-generate_dashboard(AIJournalismDashboard, render = TRUE)
+#generate_dashboard(AIJournalismDashboard, render = TRUE)
 
 #publish_dashboard(
 #  message = "First version",  
@@ -1151,45 +1913,4 @@ generate_dashboard(AIJournalismDashboard, render = TRUE)
 
 #To update your dashboard later, use:
 #   update_dashboard(message = "Your update message")
-```
-
-```{r}
-# Q5 broken down by country, one tab per question: each tab shows a box plot
-# comparing the six countries on that single item's 0-100 thermometer.
-
-country_order = c("Netherlands", "Denmark", "USA", "Brazil", "South Africa", "Japan")
-
-Q5_by_question = create_content(data = q5_long, type = "boxplot") %>%
-  add_viz(y_var = "value", x_var = "country", horizontal = TRUE,
-          filter = ~ item == "Fact-checking",
-          title = "Fact-checking", title_tabset = "Fact-checking",
-          x_label = "", y_label = therm_label,
-          x_order = country_order, tooltip_suffix = " / 100",
-          tabgroup = "Q5 by question") %>%
-  add_viz(y_var = "value", x_var = "country", horizontal = TRUE,
-          filter = ~ item == "Identifying content origin",
-          title = "Identifying content origin", title_tabset = "Identifying content origin",
-          x_label = "", y_label = therm_label,
-          x_order = country_order, tooltip_suffix = " / 100",
-          tabgroup = "Q5 by question") %>%
-  add_viz(y_var = "value", x_var = "country", horizontal = TRUE,
-          filter = ~ item == "Understanding the writer",
-          title = "Understanding the writer", title_tabset = "Understanding the writer",
-          x_label = "", y_label = therm_label,
-          x_order = country_order, tooltip_suffix = " / 100",
-          tabgroup = "Q5 by question") %>%
-  add_viz(y_var = "value", x_var = "country", horizontal = TRUE,
-          filter = ~ item == "Understanding journalistic values",
-          title = "Understanding journalistic values", title_tabset = "Understanding journalistic values",
-          x_label = "", y_label = therm_label,
-          x_order = country_order, tooltip_suffix = " / 100",
-          tabgroup = "Q5 by question") %>%
-  add_viz(y_var = "value", x_var = "country", horizontal = TRUE,
-          filter = ~ item == "Judging human involvement",
-          title = "Judging human involvement", title_tabset = "Judging human involvement",
-          x_label = "", y_label = therm_label,
-          x_order = country_order, tooltip_suffix = " / 100",
-          tabgroup = "Q5 by question")
-
-Q5_by_question %>% preview()
 ```
