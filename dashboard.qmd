@@ -226,7 +226,8 @@ home = create_page("Home", is_landing_page = TRUE) %>%
 scale_1_10 = as.character(1:10)
 
 GenAIuse = create_content(data = data, type = "bar") %>%
-  add_viz(x_var = "GenAI_use", bar_type = "percent",
+  add_viz(filter = ~ !is.na(country),
+          x_var = "GenAI_use", bar_type = "percent",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "All Countries", tabgroup = "GenAI Use across countries") %>%
   add_viz(x_var = "GenAI_use", bar_type = "percent",
@@ -255,6 +256,9 @@ GenAIuse = create_content(data = data, type = "bar") %>%
           title = "", title_tabset = "Japan", tabgroup = "GenAI Use across countries")
  
 
+```
+
+```{r}
 GenAIuse_breakdown = create_content(data = data, type = "bar") %>%
   # By age group
   add_viz(x_var = "GenAI_use", bar_type = "percent", group_var = "age_cat",
@@ -352,7 +356,8 @@ GenAIuse_breakdown %>% preview
 
 ```{r}
 NewsTrust = create_content(data = data, type = "bar") %>%
-  add_viz(x_var = "trust_news", bar_type = "percent",
+  add_viz(filter = ~ !is.na(country),
+          x_var = "trust_news", bar_type = "percent",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "All Countries", tabgroup = "Trust in News Media across countries") %>%
   add_viz(x_var = "trust_news", bar_type = "percent",
@@ -381,40 +386,6 @@ NewsTrust = create_content(data = data, type = "bar") %>%
           title = "", title_tabset = "Japan", tabgroup = "Trust in News Media across countries")
 
 NewsTrust %>% preview
-```
-
-### ChatGPT Trust
-
-```{r}
-ChatGPTTrust = create_content(data = data, type = "bar") %>%
-  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
-          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "All Countries", tabgroup = "Trust in ChatGPT across countries") %>%
-  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
-          filter = ~ country == "Netherlands",
-          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Netherlands", tabgroup = "Trust in ChatGPT across countries") %>%
-  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
-          filter = ~ country == "Denmark",
-          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Denmark", tabgroup = "Trust in ChatGPT across countries") %>%
-  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
-          filter = ~ country == "USA",
-          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "USA", tabgroup = "Trust in ChatGPT across countries") %>%
-  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
-          filter = ~ country == "Brazil",
-          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Brazil", tabgroup = "Trust in ChatGPT across countries") %>%
-  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
-          filter = ~ country == "South Africa",
-          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "South Africa", tabgroup = "Trust in ChatGPT across countries") %>%
-  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
-          filter = ~ country == "Japan",
-          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
-          title = "", title_tabset = "Japan", tabgroup = "Trust in ChatGPT across countries")
-
 ```
 
 ```{r}
@@ -505,6 +476,45 @@ NewsTrust_breakdown = create_content(data = data, type = "bar") %>%
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "Japan", tabgroup = "Trust in News Media among Different Subgroups/By Education")
 
+
+```
+
+### ChatGPT Trust
+
+```{r}
+ChatGPTTrust = create_content(data = data, type = "bar") %>%
+  add_viz(filter = ~ !is.na(country),
+          x_var = "trust_chatGPT", bar_type = "percent",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "All Countries", tabgroup = "Trust in ChatGPT across countries") %>%
+  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
+          filter = ~ country == "Netherlands",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Netherlands", tabgroup = "Trust in ChatGPT across countries") %>%
+  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
+          filter = ~ country == "Denmark",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Denmark", tabgroup = "Trust in ChatGPT across countries") %>%
+  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
+          filter = ~ country == "USA",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "USA", tabgroup = "Trust in ChatGPT across countries") %>%
+  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
+          filter = ~ country == "Brazil",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Brazil", tabgroup = "Trust in ChatGPT across countries") %>%
+  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
+          filter = ~ country == "South Africa",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "South Africa", tabgroup = "Trust in ChatGPT across countries") %>%
+  add_viz(x_var = "trust_chatGPT", bar_type = "percent",
+          filter = ~ country == "Japan",
+          x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
+          title = "", title_tabset = "Japan", tabgroup = "Trust in ChatGPT across countries")
+
+```
+
+```{r}
 ChatGPTTrust_breakdown = create_content(data = data, type = "bar") %>%
   # By age group
   add_viz(x_var = "trust_chatGPT", bar_type = "percent", group_var = "age_cat",
@@ -599,7 +609,8 @@ ChatGPTTrust_breakdown %>% preview
 
 ```{r}
 SocialMediaTrust = create_content(data = data, type = "bar") %>%
-  add_viz(x_var = "trust_social_media", bar_type = "percent",
+  add_viz(filter = ~ !is.na(country),
+          x_var = "trust_social_media", bar_type = "percent",
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "All Countries", tabgroup = "Trust in Social Media across countries") %>%
   add_viz(x_var = "trust_social_media", bar_type = "percent",
@@ -627,6 +638,9 @@ SocialMediaTrust = create_content(data = data, type = "bar") %>%
           x_label = "", y_label = "Percent (%)", tooltip_suffix = "%",
           title = "", title_tabset = "Japan", tabgroup = "Trust in Social Media across countries")
 
+```
+
+```{r}
 SocialMediaTrust_breakdown = create_content(data = data, type = "bar") %>%
   # By age group
   add_viz(x_var = "trust_social_media", bar_type = "percent", group_var = "age_cat",
@@ -726,6 +740,7 @@ therm_label = "Feeling thermometer (0 = negative, 100 = positive)"
 
 authenticity_feelings = create_content(data = q5_long, type = "boxplot") %>%
     add_viz(y_var = "value", x_var = "item", horizontal = TRUE,
+          filter = ~ !is.na(country),
           title = "", title_tabset = "All Countries",
           x_label = "", y_label = therm_label,
           tooltip_suffix = " / 100",
@@ -768,7 +783,9 @@ authenticity_feelings = create_content(data = q5_long, type = "boxplot") %>%
           tabgroup = "Authenticity Feelings across countries")
 
 authenticity_feelings %>% preview()
+```
 
+```{r}
 authenticity_feelings_breakdown = create_content(data = q5_long, type = "boxplot") %>%
   # By age group — 18-24
   add_viz(y_var = "value", x_var = "item", horizontal = TRUE, filter = ~ age_cat == "18-24",
@@ -1035,7 +1052,8 @@ q6_order   = c("Very willing", "Somewhat willing", "Neutral",
 q6_palette = c("#4575b4", "#91bfdb", "#ffffbf", "#fc8d59", "#d73027")
 
 AINewsEngagement = create_content(data = data, type = "stackedbar") %>%
-  add_viz(x_vars = q6_vars,
+  add_viz(filter = ~ !is.na(country),
+          x_vars = q6_vars,
           x_var_labels = q6_labels,
           stack_order = q6_order,
           color_palette = q6_palette,
@@ -1127,7 +1145,8 @@ q9_order   = c("Strongly agree", "Agree", "Neither agree, nor disagree",
 q9_palette = c("#4575b4", "#91bfdb", "#ffffbf", "#fc8d59", "#d73027")
 
 Hyperpersonalisation = create_content(data = data, type = "stackedbar") %>%
-  add_viz(x_vars = q9_vars,
+  add_viz(filter = ~ !is.na(country),
+          x_vars = q9_vars,
           x_var_labels = q9_labels,
           stack_order = q9_order,
           color_palette = q9_palette,
@@ -1214,7 +1233,8 @@ q8_order   = c("Absolutely essential", "Very important",
 q8_palette = c("#08306b", "#2171b5", "#6baed6", "#c6dbef", "#f7fbff")
 
 Credibility = create_content(data = data, type = "stackedbar") %>%
-  add_viz(x_vars = q8_vars,
+  add_viz(filter = ~ !is.na(country),
+          x_vars = q8_vars,
           x_var_labels = q8_labels,
           stack_order = q8_order,
           color_palette = q8_palette,
@@ -1333,7 +1353,8 @@ q7_long = data %>%
   filter(item != "Don't know")
 
 Q7_mentions = create_content(data = q7_long, type = "bar") %>%
-  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
+  add_viz(filter = ~ !is.na(country),
+          x_var = "item", value_var = "mentioned", bar_type = "mean",
           x_order = q7_item_order(q7_long),
           color_palette = q7_colors[q7_item_order(q7_long)],
           horizontal = TRUE,
@@ -1523,7 +1544,8 @@ q10_order   = c("Strongly agree", "Agree", "Neither agree, nor disagree",
 q10_palette = c("#4575b4", "#91bfdb", "#ffffbf", "#fc8d59", "#d73027")
 
 RegulatoryModels = create_content(data = data, type = "stackedbar") %>%
-  add_viz(x_vars = q10_vars,
+  add_viz(filter = ~ !is.na(country),
+          x_vars = q10_vars,
           x_var_labels = q10_labels,
           stack_order = q10_order,
           color_palette = q10_palette,
@@ -1632,7 +1654,8 @@ q11_long = data %>%
   )
 
 Q11_mentions = create_content(data = q11_long, type = "bar") %>%
-  add_viz(x_var = "item", value_var = "mentioned", bar_type = "mean",
+  add_viz(filter = ~ !is.na(country),
+          x_var = "item", value_var = "mentioned", bar_type = "mean",
           x_order = item_order(q11_long),
           color_palette = q11_colors[item_order(q11_long)],
           x_label = "", y_label = "% mentioned", tooltip_suffix = "%",
