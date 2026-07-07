@@ -211,11 +211,18 @@ authenticity_bump = authenticity_rankings %>%
 ```{r}
 home = create_page("Home", is_landing_page = TRUE) %>%
   add_text(
-    "# Welcome to our Global AI journalism Monitor!", 
-    "We surveyed xxxx people across six countries geographically and culturally diverse in April 2025 to get insights how people across the globe view journalistic AI.",
-    "Specifically, we were interested in (1) how respondents understand authenticity in times of AI, (2) How journalistic AI use affects their perceptions and engagement with content, as well what journalistic principles should guide its use, and (3) how they want to see AI regulated.",
-    "Feel free to explore our data and zoom in on key differences and similarities across countries.")
+    "Welcome to the Global AI in Journalism Monitor!", 
+    "The AI, Media and Democracy Lab surveyed 6,961 people across six geographically and culturally diverse countries: Brazil, Denmark, Japan, the Netherlands, South Africa, and the United States to get insights into what people across the globe think about the impact of AI on journalism.",
+    "We were interested in three questions: (1) How do people understand authenticity in times of AI, (2) How does journalistic AI use affect their general attitudes and possible engagement with content, as well as what journalistic principles should guide the use of AI and (3) what their preferences are regarding AI regulation.",
+    "To explore differences and similarities across countries and different subgroups, click on the tabs above. They will guide you to the core concepts we measured.",
+    ' ',
+    ' ')
 
+#    '**The Team**',
+#    '::: {layout-ncol=3}
+#![**Nicolas Mattis** — University of Amsterdam](images/NicolasMattis.jpg)
+#![**Dr. Sophie Morosoli** — University of Amsterdam](images/jane.jpg)
+#:::'
 ```
 
 ## Background variables
@@ -1819,61 +1826,85 @@ Q11_mentions %>% preview
 
 ```{r}
 page_genai = create_page("GenAI use", data) %>%
-  add_text('To measure this, we asked respondents: *"In a typical week, how often do you use generative Artificial Intelligence (AI) applications like ChatGPT, Claude or DeepSeek?"*') %>%
+  add_text('To measure how often, if at all, participants use generative AI tools, we asked them: *In a typical week, how often do you use generative Artificial Intelligence (AI) applications like ChatGPT, Claude or DeepSeek?*') %>%
+  add_spacer(height = "2rem") %>%
   add_content(GenAIuse) %>%
   add_content(GenAIuse_breakdown)
 
 page_news_trust = create_page("Trust in News Media", data) %>%
-  add_text('To measure this, we asked respondents: *"On a scale from 0 to 10, where 0 means "no trust at all" and 10 means "complete trust", how much do you trust the news media in your country?"*') %>%
+  add_text('To measure three levels of trust in news media, we asked respondents: *"On a scale from 0 to 10, where 0 means ”no trust at all” and 10 means “complete trust”, how much do you trust the news media in your country?"*', 
+           'For illustration, we combined scores into low (0-3), medium (4-7) and high (8-10) levels of trust.') %>%
+  add_spacer(height = "2rem") %>%
   add_content(NewsTrust) %>%
   add_content(NewsTrust_breakdown)
 
 page_chatgpt_trust = create_page("Trust in ChatGPT", data) %>%
-  add_text('To measure this, we asked respondents: *"On a scale from 0 to 10, where 0 means "no trust at all" and 10 means "complete trust", how much do you trust ChatGPT?"*') %>%
+  add_text('To measure three levels of trust in ChatGPT, we asked respondents: *"On a scale from 0 to 10, where 0 means ”no trust at all” and 10 means “complete trust”, how much do you trust ChatGPT?"*', 
+           'For illustration, we combined scores into low (0-3), medium (4-7) and high (8-10) levels of trust.') %>%
+  add_spacer(height = "2rem") %>%
   add_content(ChatGPTTrust) %>%
   add_content(ChatGPTTrust_breakdown)
 
 page_social_media_trust = create_page("Trust in Social Media", data) %>%
-  add_text('To measure this, we asked respondents: *"On a scale from 0 to 10, where 0 means "no trust at all" and 10 means "complete trust", how much do you trust social media?"*') %>%
+  add_text('To measure three levels of trust in social media, we asked respondents: *"On a scale from 0 to 10, where 0 means ”no trust at all” and 10 means “complete trust”, how much do you trust social media?"*', 
+           'For illustration, we combined scores into low (0-3), medium (4-7) and high (8-10) levels of trust.') %>%
+  add_spacer(height = "2rem") %>%
   add_content(SocialMediaTrust) %>%
   add_content(SocialMediaTrust_breakdown)
 
 page_authenticity_feelings = create_page("Authenticity Feelings") %>%
-  add_text('To measure this, we asked respondents: *"How do you believe the use of AI to help create journalistic content, will affect your ability to do the following?"*') %>%
+  add_text('To measure how people feel about the impact of AI on authenticity, we asked them with the help of a feeling thermometer whether they think that the use of AI to help create journalistic content will affect their ability to do the following positively (= 100) or negatively (= 0).',
+  '***Reading example:***',
+  '*The graph shows a box plot. The line in the middle marks the median value and the box limits indicate the range of the central 50% of the dataset. The lines on each side capture the range of the remaining data. Example: The ability to check if the content is based on facts or reality has a median of 63, which means that 25% of the participants score below 37 and 25% above 81.*') %>%
+  add_spacer(height = "2rem") %>%
   add_content(authenticity_feelings) %>%
   add_content(authenticity_feelings_breakdown)
 
 page_authenticity_rankings = create_page("Authenticity Rankings") %>%
-  add_text('To measure this, we asked respondents: *"What do you consider authentic journalistic content?  Please rank the following from 1 to 5, where 1 is most authentic and 5 is least authentic."*') %>%
+  add_text('To measure what individuals consider authentic journalistic content, we asked them to rank the following statements according from 1 (*most authentic*) to 5 (*least authentic*).',
+           '***Reading example***:',
+           '*In each of the six countries, people said that journalistic content that expresses a writer’s character, beliefs or personality is considered the most authentic journalistic content.*') %>%
+  add_spacer(height = "2rem") %>%
   add_content(authenticity_ranking_viz)
 
 page_journalistic_principles = create_page("Journalistic Principles") %>%
-  add_text('To measure this, we asked respondents: *"Which principles do you think should guide the use of AI in journalism? Choose your top three."*') %>%
+  add_text('To measure which journalistic principles should guide the use of AI in journalism, we asked our respondents to choose their top three out of 11 commonly named principles.', 
+           '***Reading example***:',
+           '*37.9% of all respondents across countries chose “maintaining content quality” as one of their top three journalistic principles.*') %>%
+  add_spacer(height = "2rem") %>%
   add_content(Q7_mentions) %>%
   add_content(Q7_mentions_breakdown)
 
 page_willingness_to_engage = create_page("Willingness to Engage") %>%
-  add_text('To measure this, we asked respondents: *"If you know from the beginning that journalistic content is generated with the help of AI, how willing are you to ..."*') %>%
+  add_text('To measure how willing individuals are to engage with AI generated journalistic content, we asked them to indicate their willingness to read, share, trust, talk about and ignore AI-supported news on a 5-point scale (1 = very unwilling; 5 = very willing)') %>%
+  add_spacer(height = "2rem") %>%
   add_content(AINewsEngagement) %>%
   add_content(AINewsEngagement_breakdown)
 
 page_hyperpersonalisation = create_page("Attitudes towards Hyperpersonalisation") %>%
-  add_text('To measure this, we asked respondents: *"Hyper-personalization uses generative AI to tailor news to your preferences and present it in flexible formatsways. For example, generative AI can change turn a news article into an audio clip or a summary, making it more engaging and relevant for you. To what extent do you agree with the following statements?"*') %>%
+  add_text('***Definition:*** Hyperpersonalization uses generative AI to tailor news to individuals’ preferences and present it in flexible formats and ways. For example, generative AI can turn a news article into an audio clip or a short summary, making it more engaging and relevant for different individuals.', 
+  'To measure what people think about hyperpeersonalisation, we asked our respondents to what extent they agree with the statements below:') %>%
+  add_spacer(height = "2rem") %>%
   add_content(Hyperpersonalisation) %>%
   add_content(Hyperpersonalisation_breakdown)
 
 page_credibility = create_page("Aspects influencing Credibility Judgements") %>%
-  add_text('To measure this, we asked respondents: *"When you read an article that may be written by generative AI, how does each of the following factors influence how much you believe the content?"*') %>%
+  add_text('To measure the importance of specific aspects which influence the credibility of AI-supported journalistic content, we asked the following: *When you read an article that may be written by generative AI, how does each of the following factors influence how much you believe the content?*') %>%
+  add_spacer(height = "2rem") %>%
   add_content(Credibility) %>%
   add_content(Credibility_breakdown)
 
 page_regulatory_priorities = create_page("Regulatory Priorities") %>%
-  add_text('To measure this, we asked respondents: *"Which aspects of your life should AI regulation protect? Choose your top three aspects."*') %>%
+  add_text('As AI technologies impact different aspects of society, we measured the priorities individuals have when it comes to which aspects of life AI regulation should protect. We asked them to choose their top three aspects.',
+           '***Reading example:***', 
+           '*67.7% of all respondents across countries chose “human rights” as one of their top three aspects that AI regulation should protect.*') %>%
+  add_spacer(height = "2rem") %>%
   add_content(Q11_mentions) %>%
   add_content(Q11_mentions_breakdown)
 
 page_regulatory_attitudes = create_page("Attitudes towards Regulation") %>%
-  add_text('To measure this, we asked respondents: *"To what extent do you agree with the following statements regarding AI regulation."*') %>%
+  add_text('To measure what people think AI regulation should do and who should be held accountable, we asked our respondents to indicate to what extent they agree with the following statements regarding AI regulation.') %>%
+  add_spacer(height = "2rem") %>%
   add_content(RegulatoryModels) %>%
   add_content(RegulatoryModels_breakdown)
 ```
@@ -1937,3 +1968,4 @@ generate_dashboard(AIJournalismDashboard, render = TRUE)
 #To update your dashboard later, use:
 #   update_dashboard(message = "Your update message")
 ```
+
