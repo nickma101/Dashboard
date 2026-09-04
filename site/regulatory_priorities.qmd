@@ -1,0 +1,1288 @@
+---
+title: "Regulatory Priorities"
+format: html
+---
+
+```{r, include=FALSE}
+# Initialize dashboardr page configuration (CSS/JS for charts)
+dashboardr:::.page_config()
+```
+
+```{r setup}
+#| echo: false
+#| warning: false
+#| message: false
+#| error: false
+#| results: 'hide'
+
+# Load dashboardr (includes dplyr, highcharter as dependencies)
+library(dashboardr)
+
+# Global chunk options
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  error = FALSE,
+  fig.width = 12,
+  fig.height = 8,
+  dpi = 300
+)
+
+# Load data
+data <- readRDS('dataset_large_48727obs.rds')
+
+# Data summary
+cat('Dataset loaded:', nrow(data), 'rows,', ncol(data), 'columns\n')
+
+# Create filtered datasets
+# Each filter is applied once and reused across visualizations
+
+data_filtered_7d7cd613 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(!is.na(country))
+data_filtered_03566455 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Netherlands")
+data_filtered_beb8a137 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Denmark")
+data_filtered_a1803a37 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "USA")
+data_filtered_6dcfcc28 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Brazil")
+data_filtered_4bc4c9f5 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "South Africa")
+data_filtered_0c062950 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Japan")
+data_filtered_e4cbba6b <- dashboardr:::.convert_haven(data) %>% dplyr::filter(gender != "Other")
+data_filtered_5384598e <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Netherlands" & gender != "Other")
+data_filtered_0d2b385d <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Denmark" & gender != "Other")
+data_filtered_64c41e20 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "USA" & gender != "Other")
+data_filtered_4587f0fd <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Brazil" & gender != "Other")
+data_filtered_9f1f2013 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "South Africa" & gender != "Other")
+data_filtered_0db57f63 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Japan" & gender != "Other")
+
+```
+
+
+As AI technologies impact different aspects of society, we measured the priorities individuals have when it comes to which aspects of life AI regulation should protect. We asked them to choose their top three aspects.
+
+***Reading example:***
+
+*67.7% of all respondents across countries chose “human rights” as one of their top three aspects that AI regulation should protect.*
+
+
+<div style='height: 2rem;'></div>
+
+## Regulatory Priorities across countries
+
+
+::: {.panel-tabset}
+
+### All Countries
+
+```{r regulatory-priorities-across-countries}
+# Regulatory Priorities
+result <- viz_bar(
+  data = data_filtered_7d7cd613,
+  title = "Regulatory Priorities",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  x_order = c("Human rights", "Economic wellbeing", "State & national security", "Technological innovation", "Environment", "Relationships with others", "Religious beliefs / local traditions"),
+  color_palette = c("#76B7B2", "#4E79A7", "#B07AA1", "#F28E2B", "#59A14F", "#EDC948", "#E15759"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Netherlands
+
+```{r regulatory-priorities-across-countries-2}
+# Regulatory Priorities
+result <- viz_bar(
+  data = data_filtered_03566455,
+  title = "Regulatory Priorities",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  x_order = c("Human rights", "State & national security", "Economic wellbeing", "Relationships with others", "Environment", "Technological innovation", "Religious beliefs / local traditions"),
+  color_palette = c("#76B7B2", "#B07AA1", "#4E79A7", "#EDC948", "#59A14F", "#F28E2B", "#E15759"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Denmark
+
+```{r regulatory-priorities-across-countries-3}
+# Regulatory Priorities
+result <- viz_bar(
+  data = data_filtered_beb8a137,
+  title = "Regulatory Priorities",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  x_order = c("Human rights", "State & national security", "Economic wellbeing", "Relationships with others", "Environment", "Technological innovation", "Religious beliefs / local traditions"),
+  color_palette = c("#76B7B2", "#B07AA1", "#4E79A7", "#EDC948", "#59A14F", "#F28E2B", "#E15759"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### USA
+
+```{r regulatory-priorities-across-countries-4}
+# Regulatory Priorities
+result <- viz_bar(
+  data = data_filtered_a1803a37,
+  title = "Regulatory Priorities",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  x_order = c("Human rights", "Economic wellbeing", "State & national security", "Technological innovation", "Environment", "Relationships with others", "Religious beliefs / local traditions"),
+  color_palette = c("#76B7B2", "#4E79A7", "#B07AA1", "#F28E2B", "#59A14F", "#EDC948", "#E15759"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Brazil
+
+```{r regulatory-priorities-across-countries-5}
+# Regulatory Priorities
+result <- viz_bar(
+  data = data_filtered_6dcfcc28,
+  title = "Regulatory Priorities",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  x_order = c("Human rights", "Economic wellbeing", "Environment", "Technological innovation", "State & national security", "Religious beliefs / local traditions", "Relationships with others"),
+  color_palette = c("#76B7B2", "#4E79A7", "#59A14F", "#F28E2B", "#B07AA1", "#E15759", "#EDC948"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### South Africa
+
+```{r regulatory-priorities-across-countries-6}
+# Regulatory Priorities
+result <- viz_bar(
+  data = data_filtered_4bc4c9f5,
+  title = "Regulatory Priorities",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  x_order = c("Human rights", "Economic wellbeing", "Environment", "Technological innovation", "State & national security", "Religious beliefs / local traditions", "Relationships with others"),
+  color_palette = c("#76B7B2", "#4E79A7", "#59A14F", "#F28E2B", "#B07AA1", "#E15759", "#EDC948"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Japan
+
+```{r regulatory-priorities-across-countries-7}
+# Regulatory Priorities
+result <- viz_bar(
+  data = data_filtered_0c062950,
+  title = "Regulatory Priorities",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  x_order = c("Human rights", "Economic wellbeing", "State & national security", "Technological innovation", "Environment", "Relationships with others", "Religious beliefs / local traditions"),
+  color_palette = c("#76B7B2", "#4E79A7", "#B07AA1", "#F28E2B", "#59A14F", "#EDC948", "#E15759"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+:::
+
+## Regulatory Priorities among Different Subgroups
+
+
+::: {.panel-tabset}
+
+### By Age Group
+
+
+::: {.panel-tabset}
+
+##### All Countries
+
+```{r regulatory-priorities-among-different-subgroups-by}
+# 
+result <- viz_bar(
+  data = data,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "age_cat",
+  x_order = c("Human rights", "Economic wellbeing", "State & national security", "Technological innovation", "Environment", "Relationships with others", "Religious beliefs / local traditions"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Netherlands
+
+```{r regulatory-priorities-among-different-subgroups-by-2}
+# 
+result <- viz_bar(
+  data = data_filtered_03566455,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "age_cat",
+  x_order = c("Human rights", "State & national security", "Economic wellbeing", "Relationships with others", "Environment", "Technological innovation", "Religious beliefs / local traditions"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Denmark
+
+```{r regulatory-priorities-among-different-subgroups-by-3}
+# 
+result <- viz_bar(
+  data = data_filtered_beb8a137,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "age_cat",
+  x_order = c("Human rights", "State & national security", "Economic wellbeing", "Relationships with others", "Environment", "Technological innovation", "Religious beliefs / local traditions"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### USA
+
+```{r regulatory-priorities-among-different-subgroups-by-4}
+# 
+result <- viz_bar(
+  data = data_filtered_a1803a37,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "age_cat",
+  x_order = c("Human rights", "Economic wellbeing", "State & national security", "Technological innovation", "Environment", "Relationships with others", "Religious beliefs / local traditions"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Brazil
+
+```{r regulatory-priorities-among-different-subgroups-by-5}
+# 
+result <- viz_bar(
+  data = data_filtered_6dcfcc28,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "age_cat",
+  x_order = c("Human rights", "Economic wellbeing", "Environment", "Technological innovation", "State & national security", "Religious beliefs / local traditions", "Relationships with others"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### South Africa
+
+```{r regulatory-priorities-among-different-subgroups-by-6}
+# 
+result <- viz_bar(
+  data = data_filtered_4bc4c9f5,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "age_cat",
+  x_order = c("Human rights", "Economic wellbeing", "Environment", "Technological innovation", "State & national security", "Religious beliefs / local traditions", "Relationships with others"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Japan
+
+```{r regulatory-priorities-among-different-subgroups-by-7}
+# 
+result <- viz_bar(
+  data = data_filtered_0c062950,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "age_cat",
+  x_order = c("Human rights", "Economic wellbeing", "State & national security", "Technological innovation", "Environment", "Relationships with others", "Religious beliefs / local traditions"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+:::
+
+
+### By Gender
+
+
+::: {.panel-tabset}
+
+##### All Countries
+
+```{r regulatory-priorities-among-different-subgroups-by-8}
+# 
+result <- viz_bar(
+  data = data_filtered_e4cbba6b,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "gender",
+  x_order = c("Human rights", "Economic wellbeing", "State & national security", "Technological innovation", "Environment", "Relationships with others", "Religious beliefs / local traditions"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Netherlands
+
+```{r regulatory-priorities-among-different-subgroups-by-9}
+# 
+result <- viz_bar(
+  data = data_filtered_5384598e,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "gender",
+  x_order = c("Human rights", "State & national security", "Economic wellbeing", "Relationships with others", "Environment", "Technological innovation", "Religious beliefs / local traditions"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Denmark
+
+```{r regulatory-priorities-among-different-subgroups-by-10}
+# 
+result <- viz_bar(
+  data = data_filtered_0d2b385d,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "gender",
+  x_order = c("Human rights", "State & national security", "Economic wellbeing", "Relationships with others", "Environment", "Technological innovation", "Religious beliefs / local traditions"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### USA
+
+```{r regulatory-priorities-among-different-subgroups-by-11}
+# 
+result <- viz_bar(
+  data = data_filtered_64c41e20,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "gender",
+  x_order = c("Human rights", "Economic wellbeing", "State & national security", "Technological innovation", "Environment", "Relationships with others", "Religious beliefs / local traditions"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Brazil
+
+```{r regulatory-priorities-among-different-subgroups-by-12}
+# 
+result <- viz_bar(
+  data = data_filtered_4587f0fd,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "gender",
+  x_order = c("Human rights", "Economic wellbeing", "Environment", "Technological innovation", "State & national security", "Religious beliefs / local traditions", "Relationships with others"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### South Africa
+
+```{r regulatory-priorities-among-different-subgroups-by-13}
+# 
+result <- viz_bar(
+  data = data_filtered_9f1f2013,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "gender",
+  x_order = c("Human rights", "Economic wellbeing", "Environment", "Technological innovation", "State & national security", "Religious beliefs / local traditions", "Relationships with others"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Japan
+
+```{r regulatory-priorities-among-different-subgroups-by-14}
+# 
+result <- viz_bar(
+  data = data_filtered_0db57f63,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "gender",
+  x_order = c("Human rights", "Economic wellbeing", "State & national security", "Technological innovation", "Environment", "Relationships with others", "Religious beliefs / local traditions"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+:::
+
+
+### By Education
+
+
+::: {.panel-tabset}
+
+##### All Countries
+
+```{r regulatory-priorities-among-different-subgroups-by-15}
+# 
+result <- viz_bar(
+  data = data,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "education",
+  x_order = c("Human rights", "Economic wellbeing", "State & national security", "Technological innovation", "Environment", "Relationships with others", "Religious beliefs / local traditions"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%",
+  subtitle = "Education levels: low (hasn't finished highschool), middle (finished highschool but not university), high (finished university)"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Netherlands
+
+```{r regulatory-priorities-among-different-subgroups-by-16}
+# 
+result <- viz_bar(
+  data = data_filtered_03566455,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "education",
+  x_order = c("Human rights", "State & national security", "Economic wellbeing", "Relationships with others", "Environment", "Technological innovation", "Religious beliefs / local traditions"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%",
+  subtitle = "Education levels: low (hasn't finished highschool), middle (finished highschool but not university), high (finished university)"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Denmark
+
+```{r regulatory-priorities-among-different-subgroups-by-17}
+# 
+result <- viz_bar(
+  data = data_filtered_beb8a137,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "education",
+  x_order = c("Human rights", "State & national security", "Economic wellbeing", "Relationships with others", "Environment", "Technological innovation", "Religious beliefs / local traditions"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%",
+  subtitle = "Education levels: low (hasn't finished highschool), middle (finished highschool but not university), high (finished university)"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### USA
+
+```{r regulatory-priorities-among-different-subgroups-by-18}
+# 
+result <- viz_bar(
+  data = data_filtered_a1803a37,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "education",
+  x_order = c("Human rights", "Economic wellbeing", "State & national security", "Technological innovation", "Environment", "Relationships with others", "Religious beliefs / local traditions"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%",
+  subtitle = "Education levels: low (hasn't finished highschool), middle (finished highschool but not university), high (finished university)"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Brazil
+
+```{r regulatory-priorities-among-different-subgroups-by-19}
+# 
+result <- viz_bar(
+  data = data_filtered_6dcfcc28,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "education",
+  x_order = c("Human rights", "Economic wellbeing", "Environment", "Technological innovation", "State & national security", "Religious beliefs / local traditions", "Relationships with others"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%",
+  subtitle = "Education levels: low (hasn't finished highschool), middle (finished highschool but not university), high (finished university)"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### South Africa
+
+```{r regulatory-priorities-among-different-subgroups-by-20}
+# 
+result <- viz_bar(
+  data = data_filtered_4bc4c9f5,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "education",
+  x_order = c("Human rights", "Economic wellbeing", "Environment", "Technological innovation", "State & national security", "Religious beliefs / local traditions", "Relationships with others"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%",
+  subtitle = "Education levels: low (hasn't finished highschool), middle (finished highschool but not university), high (finished university)"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Japan
+
+```{r regulatory-priorities-among-different-subgroups-by-21}
+# 
+result <- viz_bar(
+  data = data_filtered_0c062950,
+  title = "",
+  x_var = "item",
+  value_var = "mentioned",
+  bar_type = "mean",
+  group_var = "education",
+  x_order = c("Human rights", "Economic wellbeing", "State & national security", "Technological innovation", "Environment", "Relationships with others", "Religious beliefs / local traditions"),
+  x_label = "",
+  y_label = "% mentioned",
+  tooltip_suffix = "%",
+  subtitle = "Education levels: low (hasn't finished highschool), middle (finished highschool but not university), high (finished university)"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+:::
+
+
+:::
+

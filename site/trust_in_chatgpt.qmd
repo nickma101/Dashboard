@@ -1,0 +1,1223 @@
+---
+title: "Trust in ChatGPT"
+format: html
+---
+
+```{r, include=FALSE}
+# Initialize dashboardr page configuration (CSS/JS for charts)
+dashboardr:::.page_config()
+```
+
+```{r setup}
+#| echo: false
+#| warning: false
+#| message: false
+#| error: false
+#| results: 'hide'
+
+# Load dashboardr (includes dplyr, highcharter as dependencies)
+library(dashboardr)
+
+# Global chunk options
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  error = FALSE,
+  fig.width = 12,
+  fig.height = 8,
+  dpi = 300
+)
+
+# Load data
+data <- readRDS('dataset_large_6961obs.rds')
+
+# Data summary
+cat('Dataset loaded:', nrow(data), 'rows,', ncol(data), 'columns\n')
+
+# Create filtered datasets
+# Each filter is applied once and reused across visualizations
+
+data_filtered_7d7cd613 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(!is.na(country))
+data_filtered_03566455 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Netherlands")
+data_filtered_beb8a137 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Denmark")
+data_filtered_a1803a37 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "USA")
+data_filtered_6dcfcc28 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Brazil")
+data_filtered_4bc4c9f5 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "South Africa")
+data_filtered_0c062950 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Japan")
+data_filtered_e4cbba6b <- dashboardr:::.convert_haven(data) %>% dplyr::filter(gender != "Other")
+data_filtered_5384598e <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Netherlands" & gender != "Other")
+data_filtered_0d2b385d <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Denmark" & gender != "Other")
+data_filtered_64c41e20 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "USA" & gender != "Other")
+data_filtered_4587f0fd <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Brazil" & gender != "Other")
+data_filtered_9f1f2013 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "South Africa" & gender != "Other")
+data_filtered_0db57f63 <- dashboardr:::.convert_haven(data) %>% dplyr::filter(country == "Japan" & gender != "Other")
+
+```
+
+
+To measure three levels of trust in ChatGPT, we asked respondents: *"On a scale from 0 to 10, where 0 means ”no trust at all” and 10 means “complete trust”, how much do you trust ChatGPT?"*
+
+For illustration, we combined scores into low (0-3), medium (4-7) and high (8-10) levels of trust.
+
+
+<div style='height: 2rem;'></div>
+
+## Trust in ChatGPT across countries
+
+
+::: {.panel-tabset}
+
+### All Countries
+
+```{r trust-in-chatgpt-across-countries}
+# 
+result <- viz_bar(
+  data = data_filtered_7d7cd613,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Netherlands
+
+```{r trust-in-chatgpt-across-countries-2}
+# 
+result <- viz_bar(
+  data = data_filtered_03566455,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Denmark
+
+```{r trust-in-chatgpt-across-countries-3}
+# 
+result <- viz_bar(
+  data = data_filtered_beb8a137,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### USA
+
+```{r trust-in-chatgpt-across-countries-4}
+# 
+result <- viz_bar(
+  data = data_filtered_a1803a37,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Brazil
+
+```{r trust-in-chatgpt-across-countries-5}
+# 
+result <- viz_bar(
+  data = data_filtered_6dcfcc28,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### South Africa
+
+```{r trust-in-chatgpt-across-countries-6}
+# 
+result <- viz_bar(
+  data = data_filtered_4bc4c9f5,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+### Japan
+
+```{r trust-in-chatgpt-across-countries-7}
+# 
+result <- viz_bar(
+  data = data_filtered_0c062950,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+:::
+
+## Trust in ChatGPT among Different Subgroups
+
+
+::: {.panel-tabset}
+
+### By Age Group
+
+
+::: {.panel-tabset}
+
+##### All Countries
+
+```{r trust-in-chatgpt-among-different-subgroups-by-age}
+# 
+result <- viz_bar(
+  data = data,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "age_cat",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Netherlands
+
+```{r trust-in-chatgpt-among-different-subgroups-by-age-2}
+# 
+result <- viz_bar(
+  data = data_filtered_03566455,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "age_cat",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Denmark
+
+```{r trust-in-chatgpt-among-different-subgroups-by-age-3}
+# 
+result <- viz_bar(
+  data = data_filtered_beb8a137,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "age_cat",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### USA
+
+```{r trust-in-chatgpt-among-different-subgroups-by-age-4}
+# 
+result <- viz_bar(
+  data = data_filtered_a1803a37,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "age_cat",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Brazil
+
+```{r trust-in-chatgpt-among-different-subgroups-by-age-5}
+# 
+result <- viz_bar(
+  data = data_filtered_6dcfcc28,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "age_cat",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### South Africa
+
+```{r trust-in-chatgpt-among-different-subgroups-by-age-6}
+# 
+result <- viz_bar(
+  data = data_filtered_4bc4c9f5,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "age_cat",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Japan
+
+```{r trust-in-chatgpt-among-different-subgroups-by-age-7}
+# 
+result <- viz_bar(
+  data = data_filtered_0c062950,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "age_cat",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+:::
+
+
+### By Gender
+
+
+::: {.panel-tabset}
+
+##### All Countries
+
+```{r trust-in-chatgpt-among-different-subgroups-by-gend}
+# 
+result <- viz_bar(
+  data = data_filtered_e4cbba6b,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "gender",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Netherlands
+
+```{r trust-in-chatgpt-among-different-subgroups-by-gend-2}
+# 
+result <- viz_bar(
+  data = data_filtered_5384598e,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "gender",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Denmark
+
+```{r trust-in-chatgpt-among-different-subgroups-by-gend-3}
+# 
+result <- viz_bar(
+  data = data_filtered_0d2b385d,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "gender",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### USA
+
+```{r trust-in-chatgpt-among-different-subgroups-by-gend-4}
+# 
+result <- viz_bar(
+  data = data_filtered_64c41e20,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "gender",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Brazil
+
+```{r trust-in-chatgpt-among-different-subgroups-by-gend-5}
+# 
+result <- viz_bar(
+  data = data_filtered_4587f0fd,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "gender",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### South Africa
+
+```{r trust-in-chatgpt-among-different-subgroups-by-gend-6}
+# 
+result <- viz_bar(
+  data = data_filtered_9f1f2013,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "gender",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Japan
+
+```{r trust-in-chatgpt-among-different-subgroups-by-gend-7}
+# 
+result <- viz_bar(
+  data = data_filtered_0db57f63,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "gender",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+:::
+
+
+### By Education
+
+
+::: {.panel-tabset}
+
+##### All Countries
+
+```{r trust-in-chatgpt-among-different-subgroups-by-educ}
+# 
+result <- viz_bar(
+  data = data,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "education",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%",
+  subtitle = "Education levels: low (hasn't finished highschool), middle (finished highschool but not university), high (finished university)"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Netherlands
+
+```{r trust-in-chatgpt-among-different-subgroups-by-educ-2}
+# 
+result <- viz_bar(
+  data = data_filtered_03566455,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "education",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%",
+  subtitle = "Education levels: low (hasn't finished highschool), middle (finished highschool but not university), high (finished university)"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Denmark
+
+```{r trust-in-chatgpt-among-different-subgroups-by-educ-3}
+# 
+result <- viz_bar(
+  data = data_filtered_beb8a137,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "education",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%",
+  subtitle = "Education levels: low (hasn't finished highschool), middle (finished highschool but not university), high (finished university)"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### USA
+
+```{r trust-in-chatgpt-among-different-subgroups-by-educ-4}
+# 
+result <- viz_bar(
+  data = data_filtered_a1803a37,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "education",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%",
+  subtitle = "Education levels: low (hasn't finished highschool), middle (finished highschool but not university), high (finished university)"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Brazil
+
+```{r trust-in-chatgpt-among-different-subgroups-by-educ-5}
+# 
+result <- viz_bar(
+  data = data_filtered_6dcfcc28,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "education",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%",
+  subtitle = "Education levels: low (hasn't finished highschool), middle (finished highschool but not university), high (finished university)"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### South Africa
+
+```{r trust-in-chatgpt-among-different-subgroups-by-educ-6}
+# 
+result <- viz_bar(
+  data = data_filtered_4bc4c9f5,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "education",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%",
+  subtitle = "Education levels: low (hasn't finished highschool), middle (finished highschool but not university), high (finished university)"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+##### Japan
+
+```{r trust-in-chatgpt-among-different-subgroups-by-educ-7}
+# 
+result <- viz_bar(
+  data = data_filtered_0c062950,
+  title = "",
+  x_var = "trust_chatGPT",
+  bar_type = "percent",
+  group_var = "education",
+  x_label = "",
+  y_label = "Percent (%)",
+  tooltip_suffix = "%",
+  subtitle = "Education levels: low (hasn't finished highschool), middle (finished highschool but not university), high (finished university)"
+)
+
+# Extract cross-tab data BEFORE wrapping (wrapping strips attributes)
+cross_tab_data <- attr(result, 'cross_tab_data')
+cross_tab_config <- attr(result, 'cross_tab_config')
+cross_tab_id <- attr(result, 'cross_tab_id')
+
+# Embed cross-tab data for client-side filtering
+if (!is.null(cross_tab_data)) {
+  cross_tab_json <- jsonlite::toJSON(cross_tab_data, dataframe = 'rows')
+  config_json <- jsonlite::toJSON(cross_tab_config, auto_unbox = TRUE)
+  script_tag <- htmltools::tags$script(
+    htmltools::HTML(paste0(
+      'window.dashboardrCrossTab = window.dashboardrCrossTab || {};',
+      'window.dashboardrCrossTab["', cross_tab_id, '"] = {',
+      'data: ', cross_tab_json, ',',
+      'config: ', config_json,
+      '};'
+    ))
+  )
+  result <- htmltools::tagList(script_tag, result)
+}
+
+result
+```
+
+
+:::
+
+
+:::
+

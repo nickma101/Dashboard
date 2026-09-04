@@ -1,0 +1,46 @@
+---
+title: "Home"
+format: html
+---
+
+```{r, include=FALSE}
+# Initialize dashboardr page configuration (CSS/JS for charts)
+dashboardr:::.page_config()
+```
+
+```{r setup}
+#| echo: false
+#| warning: false
+#| message: false
+#| error: false
+#| results: 'hide'
+
+# Load dashboardr (includes dplyr, highcharter as dependencies)
+library(dashboardr)
+
+# Global chunk options
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  error = FALSE,
+  fig.width = 12,
+  fig.height = 8,
+  dpi = 300
+)
+
+```
+
+
+Welcome to the Global AI in Journalism Monitor!
+
+The AI, Media and Democracy Lab surveyed 6,961 people across six geographically and culturally diverse countries: Brazil, Denmark, Japan, the Netherlands, South Africa, and the United States to get insights into what people across the globe think about the impact of AI on journalism.
+
+We were interested in three questions: (1) How do people understand authenticity in times of AI, (2) How does journalistic AI use affect their general attitudes and possible engagement with content, as well as what journalistic principles should guide the use of AI and (3) what their preferences are regarding AI regulation.
+
+To explore differences and similarities across countries and different subgroups, click on the tabs above. They will guide you to the core concepts we measured.
+
+ 
+
+ 
+
